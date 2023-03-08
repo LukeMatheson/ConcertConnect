@@ -27,7 +27,7 @@ const Login = () => {
 
   return (
     <div>
-      <button onClick={handleLogin}>Login with Spotify</button>
+      <a href="http://localhost:3000/spotify/login">Login with Spotify</a>
       {loggedIn && <p>You are logged in.</p>}
     </div>
   );

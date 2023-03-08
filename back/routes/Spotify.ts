@@ -4,7 +4,7 @@ import cors from 'cors';
 import querystring from 'querystring';
 import cookieParser from 'cookie-parser';
 
-const spotifyRouter= express.Router();
+const spotifyRouter = express.Router();
 
 
 spotifyRouter.use(function (req, res, next) {
@@ -19,6 +19,8 @@ spotifyRouter.use(function (req, res, next) {
       "Origin, X-Requested-With, Content-Type, Accept"
   );
 
+  res.header('Set-Cookie', 'HttpOnly;Secure;SameSite=None');
+
   next();
 });
 
@@ -28,6 +30,8 @@ spotifyRouter.use(
       credentials: true,
   })
 );
+
+spotifyRouter.use(cookieParser());
 
 /**
  * This is an example of a basic node.js script that performs
@@ -40,7 +44,7 @@ spotifyRouter.use(
 
 var client_id = 'bc93c832a39548c5a59f6320f995e067'; // Your client id
 var client_secret = '644c5383fc4945f4a048f4f8987bf972'; // Your secret
-var redirect_uri = 'http://localhost:3000'; // Your redirect uri
+var redirect_uri = 'htttp://localhost:3000/spotify/callback'; // Your redirect uri
 
 /**
  * Generates a random string containing numbers and letters
@@ -61,6 +65,8 @@ var stateKey = 'spotify_auth_state';
 
 spotifyRouter.get('/login', function(req: Request, res: Response) {
 
+  console.log("get login route hit");
+  
   var state = generateRandomString(16);
   res.cookie(stateKey, state);
 
@@ -78,6 +84,8 @@ spotifyRouter.get('/login', function(req: Request, res: Response) {
 
 spotifyRouter.get('/callback', function(req: Request, res: Response) {
 
+  console.log("callback route hit");
+  
   // your application requests refresh and access tokens
   // after checking the state parameter
 
