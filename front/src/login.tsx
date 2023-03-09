@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
+interface SpotifyAuthType {
+  id: string;
+  display_name: string;
+}
+
 const Login = () => {
   const [loggedIn, setLoggedIn] = useState(false);
-  const [spotifyData, setSpotifyData] = useState(null);
+  const [spotifyData, setSpotifyData] = useState<SpotifyAuthType>();
 
   const checkLogin = async () => {
     // Check if there's an access_token query parameter in the URL
@@ -39,9 +44,8 @@ const Login = () => {
           <p>You are logged in.</p>
           {spotifyData && (
             <div>
-              {/* <h2>{spotifyData.display_name}</h2>
-              <p>{spotifyData.email}</p>
-              <img src={spotifyData.images[0].url} alt="Profile" /> */}
+              <h2>{spotifyData.display_name}</h2>
+              <p>ID: {spotifyData.id}</p>
             </div>
           )}
         </div>

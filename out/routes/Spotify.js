@@ -2,14 +2,6 @@ import express from "express";
 import request from 'request';
 import querystring from 'querystring';
 const spotifyRouter = express.Router();
-/**
- * This is an example of a basic node.js script that performs
- * the Authorization Code oAuth2 flow to authenticate against
- * the Spotify Accounts.
- *
- * For more information, read
- * https://developer.spotify.com/web-api/authorization-guide/#authorization_code_flow
- */
 var client_id = 'bc93c832a39548c5a59f6320f995e067'; // Your client id
 var client_secret = '644c5383fc4945f4a048f4f8987bf972'; // Your secret
 var redirect_uri = 'http://localhost:3000/spotify/callback'; // Your redirect uri
@@ -72,15 +64,6 @@ spotifyRouter.get('/callback', function (req, res) {
         request.post(authOptions, function (error, response, body) {
             if (!error && response.statusCode === 200) {
                 var access_token = body.access_token, refresh_token = body.refresh_token;
-                // var options = {
-                //   url: 'https://api.spotify.com/v1/me',
-                //   headers: { 'Authorization': 'Bearer ' + access_token },
-                //   json: true
-                // };
-                // // use the access token to access the Spotify Web API
-                // request.get(options, function(error, response, body) {
-                //   console.log(body);
-                // });
                 // we can also pass the token to the browser to make requests from there
                 res.redirect('http://localhost:3001/?' +
                     querystring.stringify({
