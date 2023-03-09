@@ -1,22 +1,7 @@
 import express from "express";
 import request from 'request';
-import cors from 'cors';
 import querystring from 'querystring';
-import cookieParser from 'cookie-parser';
 const spotifyRouter = express.Router();
-spotifyRouter.use(function (req, res, next) {
-    //allow GET, POST, PUT, DELETE, OPTIONS
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    res.header('Set-Cookie', 'HttpOnly;Secure;SameSite=None');
-    next();
-});
-spotifyRouter.use(cors({
-    origin: ["http://localhost:3000", "http://localhost:3001"],
-    credentials: true,
-}));
-spotifyRouter.use(cookieParser());
 /**
  * This is an example of a basic node.js script that performs
  * the Authorization Code oAuth2 flow to authenticate against
@@ -27,7 +12,7 @@ spotifyRouter.use(cookieParser());
  */
 var client_id = 'bc93c832a39548c5a59f6320f995e067'; // Your client id
 var client_secret = '644c5383fc4945f4a048f4f8987bf972'; // Your secret
-var redirect_uri = 'htttp://localhost:3000/callback'; // Your redirect uri
+var redirect_uri = 'http://localhost:3000/spotify/callback'; // Your redirect uri
 /**
  * Generates a random string containing numbers and letters
  * @param  {number} length The length of the string
@@ -97,7 +82,7 @@ spotifyRouter.get('/callback', function (req, res) {
                     console.log(body);
                 });
                 // we can also pass the token to the browser to make requests from there
-                res.redirect('/#' +
+                res.redirect('http://localhost:3001/?' +
                     querystring.stringify({
                         access_token: access_token,
                         refresh_token: refresh_token
