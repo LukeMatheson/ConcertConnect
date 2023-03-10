@@ -3,9 +3,9 @@ import sqlite3 from "sqlite3";
 import { open } from "sqlite";
 import cors from 'cors';
 import cookieParser from "cookie-parser";
-import bandsInTownRouter from "./routes/bandsInTown.js";
-import spotifyRouter from "./routes/Spotify.js";
-import ticketMasterRouter from "./routes/ticketMaster.js";
+import bandsInTownRouter from "../routes/bandsInTown";
+import spotifyRouter from "../routes/Spotify";
+import ticketMasterRouter from "../routes/ticketMaster";
 
 let app = express();
 app.use(express.json());
