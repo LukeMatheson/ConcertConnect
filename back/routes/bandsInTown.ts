@@ -1,6 +1,6 @@
 import express from "express";
 
-const bandsInTownRouter = express.Router();
+const bandsInTownRouter= express.Router();
 
 
 //example
