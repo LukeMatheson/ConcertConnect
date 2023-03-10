@@ -12,7 +12,7 @@ ticketMasterRouter.get("/eventTickets", async (req, res) => {
 
     let artistName = "Drake";
     let eventCity = "Raleigh";
-    let url = `http://app.ticketmaster.com/discovery/v1/events.json?keyword=${artistName}&city=${eventCity}&apikey=LqGK8iQhoBRTXxv9mLcQjTBXQ3q9ETer`;
+    let url = `http://app.ticketmaster.com/discovery/v1/events.json?keyword=${artistName}&city=${eventCity}&apikey=${apiKey}`;
 
     let response = await fetch(url);
     let data = await response.json();
