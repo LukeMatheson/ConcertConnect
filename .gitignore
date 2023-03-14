@@ -1,6 +1,7 @@
+out/
 **/node_modules
 **/package-lock.json
 node_modules
-front/package-lock.json
-back/package-lock.json
 package-lock.json
+env.json
+
