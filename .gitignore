@@ -3,3 +3,4 @@
 node_modules
 front/package-lock.json
 back/package-lock.json
+package-lock.json
