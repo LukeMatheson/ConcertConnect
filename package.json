@@ -1,7 +1,9 @@
 {
   "scripts": {
-    "start": "cd out && node server.js",
-    "build": "rimraf out && mkdir out && tsc"
+    "start": "cd out/back && node server.js",
+    "build": "rimraf out && mkdir out && tsc",
+    "build:deploy": "rm -rf out && mkdir out && tsc && (cd .. && cd front && npm run build)",
+    "watch": "npm run build && tsc-watch --onSuccess \"npm run start\""
   },
   "type": "module",
   "dependencies": {
@@ -14,7 +16,9 @@
     "sqlite": "^4.1.2",
     "sqlite3": "^5.1.4",
     "twilio": "^4.8.0",
-    "typescript": "^4.9.4"
+    "typescript": "^4.9.4",
+    "ts-node": "^10.9.1",
+    "tsc-watch": "^6.0.0"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.3",

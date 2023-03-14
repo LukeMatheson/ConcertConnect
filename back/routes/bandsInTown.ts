@@ -1,7 +1,7 @@
 import express from "express";
+import env from "../../env.json" assert { type: "json" };
 
-
-let apiKey = "a52a26cbe2ee37055db84a45f2edd1d7";
+let apiKey = env.bandsInTownKey;
 
 let bandsInTownRouter = express.Router();
 
