@@ -4,6 +4,8 @@ import cookieParser from "cookie-parser";
 import bandsInTownRouter from "./routes/bandsInTown.js";
 import spotifyRouter from "./routes/Spotify.js";
 import ticketMasterRouter from "./routes/ticketMaster.js";
+import twilio from "./routes/twilio.js";
+app.use("/twilio", twilio);
 let app = express();
 app.use(express.json());
 app.use(cookieParser());
