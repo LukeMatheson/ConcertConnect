@@ -1,6 +1,7 @@
 import NavBar from './navBar';
 import Login from './login';
 import EventSearch from './eventSearch';
+import ViewEvent from './viewEvent';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 function App() {
@@ -20,6 +21,8 @@ function App() {
                         <Route path="/SavedEvents" element={<EventSearch />}>
                         </Route>
                         <Route path="/SearchEvents" element={<EventSearch />}>
+                        </Route>
+                        <Route path="/ViewEvent" element={<ViewEvent />}>
                         </Route>
                     </Routes>
                 </div>
