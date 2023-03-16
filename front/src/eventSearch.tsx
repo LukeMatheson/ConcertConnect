@@ -1,16 +1,27 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+
 
 interface Event {
-    venue: string;
-    date: string;
-    location: string;
-    lineup: string;
-    image: string;
+    artist: {
+        image_url: string;
+    };
+    venue: {
+        name: string;
+        location: string;
+    };
+    datetime: string;
+    lineup: string[];
 }
+
 
 let EventSearch: React.FC = () => {
     let [searchTerm, setSearchTerm] = useState<string>('');
-    let [eventData, setEventData] = useState<Event | null>(null);
+    let [eventData, setEventData] = useState<Event[]>([]);
+
+    let navigate = useNavigate();
+
 
     let handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
@@ -27,16 +38,18 @@ let EventSearch: React.FC = () => {
             });
             console.log(response);
             let data = await response.json();
-            setEventData({
-                venue: data.eventName,
-                date: data.dateTime,
-                location: data.eventLocation,
-                lineup: data.lineup,
-                image: data.artistImage
-            });
+            setEventData(data);
         } catch (error) {
             console.error(error);
         }
+    };
+
+    let handleViewEvent = (eventIndex: number) => {
+        console.log("Venue: ", eventData[eventIndex].venue.name);
+        console.log("Date: ", eventData[eventIndex].datetime);
+        console.log("Lineup: ", eventData[eventIndex].lineup.join(', '));
+        console.log("Location: ", eventData[eventIndex].venue.location);
+        navigate('/viewEvent', { state: eventData[eventIndex] });
     };
 
     let handleSaveEvent = () => {
@@ -51,21 +64,24 @@ let EventSearch: React.FC = () => {
                 <input type="text" name="artist-name" value={searchTerm} onChange={handleSearch} />
                 <button type="submit">Search</button>
             </form>
-
-            {eventData && (
+            {eventData && eventData.length > 0 && (
                 <>
-                    {eventData.image && <img src={eventData.image} alt="Event" style={{ width: "300px" }} />}
-                    <div style={{ border: "1px solid black", padding: "10px" }}>
-                        <p><strong>Venue: </strong>{eventData.venue}</p>
-                        <p><strong>Date: </strong>{eventData.date}</p>
-                        <p><strong>Lineup: </strong>{eventData.lineup}</p>
-                        <p><strong>Location: </strong>{eventData.location}</p>
-                        <button onClick={handleSaveEvent}>Save Event</button>
-                    </div>
+                    {eventData[0].artist && eventData[0].artist.image_url && <img src={eventData[0].artist.image_url} alt="Event" style={{ width: "300px" }} />}
+                    {eventData.map((event, index) => (
+                        <div key={index} style={{ border: "1px solid black", padding: "10px", marginBottom: "10px" }}>
+                            <p><strong>Venue: </strong>{event.venue.name}</p>
+                            <p><strong>Date: </strong>{event.datetime}</p>
+                            <p><strong>Lineup: </strong>{event.lineup.join(', ')}</p>
+                            <p><strong>Location: </strong>{event.venue.location}</p>
+                            <button onClick={() => handleViewEvent(index)}>View Event</button>
+                            <button onClick={handleSaveEvent}>Save Event</button>
+                        </div>
+                    ))}
                 </>
             )}
         </div>
     );
+
 };
 
 export default EventSearch;

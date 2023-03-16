@@ -1,30 +1,37 @@
 import express from "express";
+import env from "../../env.json" assert { type: "json" };
 import twilio from "twilio";
 
 let twilioRoute = express.Router();
 
-//let accountSid = "//tested and working"
-//let authToken = "//tested and working"
+let accountSid = env.twilioAccountSID;
+let authToken = env.twilioAuthToken;
 
-//let client = twilio(accountSid, authToken);
+let client = twilio(accountSid, authToken);
 
-// client.messages
-//     .create({
-//         body: 'Test Message',
-//         from: 'tested and working',
-//         to: '+tested and working'
-//     })
-//     .then(message => console.log(message.sid));
-
-
-// twilio.put('/sendText', async (req, res) => {
-//     try {
-
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ message: 'Server Error' });
-//     }
-// });
+twilioRoute.post('/sendMessage', async (req, res) => {
+    try {
+        let { notificationMethod, contactInfo, name, date, lineup, location } = req.body;
+        console.log(req.body);
+        let messageBody = `A friend has invited to this concert starring Lineup: ${lineup}. This event will be at ${name} on ${date} in ${location}`;
+        let message;
+        if (notificationMethod === "email") {
+            // TODO: send email
+            message = "Email sent!";
+        } else if (notificationMethod === "sms") {
+            message = await client.messages.create({
+                body: messageBody,
+                from: env.twilioNumber,
+                to: contactInfo
+            });
+        }
+        console.log(message);
+        res.status(200).json({ message: "Message sent successfully!" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
 
 
 export default twilioRoute;
