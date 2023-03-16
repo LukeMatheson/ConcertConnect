@@ -22,7 +22,7 @@ const Dashboard = () => {
         const params = new URLSearchParams(window.location.search);
         setSpotifyID(params.get("spotifyID") as string);
 
-        fetch(`http://localhost:3000/spotify/topArtists/${spotifyID}`)
+        fetch(`/spotify/topArtists/${spotifyID}`)
         .then(res => res.json())
         .then(function(data: ArtistDataType[]) {
             setSpotifyArtistData(data);
