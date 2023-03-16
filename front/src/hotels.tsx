@@ -50,19 +50,23 @@ function MyComponent() {
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={center}
-        zoom={15}
+        zoom={14}
         onLoad={onLoad}
         onUnmount={onUnmount}
       >
         { /* Child components, such as markers, info windows, etc. */ }
         { Hotels[1] !== undefined ? 
           Hotels[1].forEach( (hotel: any) => {
+            console.log('placed marker')
+            return (
               <Marker
+              key={hotel.formatted_address}
                 position={center}
                 onLoad={onLoad}
-                >
+                visible={true}
+                />
+              )
 
-              </Marker>
           }) : null
         }
         <></>
