@@ -1,5 +1,8 @@
 import express from "express";
-import env from "../../env.json" assert { type: "json" };
+import fs from "fs";
+//import env from "../../env.json" assert { type: "json" };
+//import env from "../../env.json";
+const env = JSON.parse(fs.readFileSync('../../env.json', 'utf8'));
 import twilio from "twilio";
 
 let twilioRoute = express.Router();
