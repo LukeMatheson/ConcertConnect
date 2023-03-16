@@ -1,25 +1,26 @@
 import express from "express";
+import fs from "fs";
+//import env from "../../env.json" assert { type: "json" };
+//import env from "../../env.json";
+const env = JSON.parse(fs.readFileSync('../../env.json', 'utf8'));
 
 const ticketMasterRouter = express.Router();
-
-const apiKey = "LqGK8iQhoBRTXxv9mLcQjTBXQ3q9ETer";
+const apiKey = env.ticketMaster;
 
 // get an artist by keyword and city
 ticketMasterRouter.get("/eventTickets", async (req, res) => {
   try {
-    // const artistName = req.query.artistName;
-    // const eventCity = req.query.eventCity;
+    const artistName = req.query.artist;
+    const eventCity = req.query.city;
 
-    let artistName = "Drake";
-    let eventCity = "Raleigh";
-    let url = `http://app.ticketmaster.com/discovery/v1/events.json?keyword=${artistName}&city=${eventCity}&apikey=${apiKey}`;
-
+    let url = `http://app.ticketmaster.com/discovery/v2/events.json?keyword=${artistName}&city=${eventCity}&apikey=${apiKey}`;
     let response = await fetch(url);
     let data = await response.json();
 
-    // get data from ticketmaster
+    // get event link from ticketmaster
+    let eventUrl = data._embedded.events[0].url;
 
-    res.json();
+    res.json({ link: eventUrl });
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
   }
