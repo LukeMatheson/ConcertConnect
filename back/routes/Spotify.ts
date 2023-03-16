@@ -58,7 +58,7 @@ spotifyRouter.get('/login', function(req: Request, res: Response) {
   res.cookie(stateKey, state);
 
   // your application requests authorization
-  var scope = 'user-read-private user-read-email';
+  var scope = 'user-read-private user-read-email user-top-read';
   res.redirect('https://accounts.spotify.com/authorize?' +
     querystring.stringify({
       response_type: 'code',
@@ -154,51 +154,52 @@ spotifyRouter.get('/callback', function(req: Request, res: Response) {
 
 spotifyRouter.get('/topArtists/:id', async function(req: Request, res:Response) {
   
-  console.log("top artists route hit");
-  
   var spotifyID: string = req.params.id;
   var query: SpotifyDbType[] = await db.all(`SELECT * FROM SpotifyUsers where spotifyID = ${spotifyID}`);
 
   var access_token: string = query[0].access_token;
   var data: SpotifyArtistsType[] = [];
 
-  // var options = {
-  //   url: 'https://api.spotify.com/v1/me/top/artists?time_range=medium_term&limit=10&offset=0',
-  //   headers: { 
-  //     'Content-Type': 'application/json',
-  //     'Authorization': 'Bearer ' + access_token,
-  //   },
-  //   json: true
-  // };
+  var options = {
+    url: 'https://api.spotify.com/v1/me/top/artists?time_range=medium_term&limit=10&offset=0',
+    headers: { 
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + access_token,
+    },
+    json: true
+  };
 
-  // request.get(options, async function(error, response, body) {
+  request.get(options, async function(error, response, body) {
+  
+    for (var x = 0; x < body.items.length; x++) {
+      var temp: SpotifyArtistsType = {
+        name: body.items[x].name,
+        imageURL: body.items[x].images[0].url
+      };
+
+      data.push(temp);
+
+    }
+
+    console.log("data");
+    console.log(data);
+
+
+    return res.status(200).json(data);
     
-  //   console.log(body);
-    
-  //   for (var x = 0; x < body.items.length; x++) {
-  //     var temp: SpotifyArtistsType = {
-  //       name: body.items[x].name,
-  //       imageURL: body.items[x].images[0].url
-  //     };
-
-  //     data.push(temp);
-
-  //   }
-  // });
-
-  // console.log(data);
+  });
 
   // return res.json(data);
 
-  axios.get('https://api.spotify.com/v1/me/top/artists?time_range=medium_term&limit=10&offset=0', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + access_token
-  }
-  })
-  .then(response => console.log(response.data))
-  .catch(error => console.error(error));
+//   axios.get('https://api.spotify.com/v1/me/top/artists?time_range=medium_term&limit=10&offset=0', {
+//     method: 'GET',
+//     headers: {
+//       'Content-Type': 'application/json',
+//       'Authorization': 'Bearer ' + access_token
+//   }
+//   })
+//   .then(response => console.log(response.data))
+//   .catch(error => console.error(error));
 });
 
 spotifyRouter.get('/refresh_token', function(req: Request, res: Response) {
