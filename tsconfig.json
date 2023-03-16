@@ -8,7 +8,7 @@
 		// enable top-level await and import/export syntax
 		"target": "es2017",
 		"moduleResolution": "node16",
-		"module": "es2022",
+		"module": "esnext",
 		// enable type checking
 		"strict": true,
 		// to make jest happy
