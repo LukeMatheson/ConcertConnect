@@ -1,6 +1,4 @@
 import express, { Response } from "express";
-import sqlite3 from "sqlite3";
-import { open } from "sqlite";
 import cors from 'cors';
 import cookieParser from "cookie-parser";
 import bandsInTownRouter from "./routes/bandsInTown.js";
