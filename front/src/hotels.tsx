@@ -1,5 +1,5 @@
 import React from 'react'
-import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
+import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 
 const containerStyle = {
   width: '800px',
@@ -18,6 +18,8 @@ function MyComponent() {
   })
 
   const [map, setMap] = React.useState(null)
+  const [Hotels, setHotels] = React.useState<any[]>([])
+  
 
   const onLoad = React.useCallback(async function callback(map: any) {
     // This is just an example of getting and using the map instance!!! don't just blindly copy!
@@ -28,8 +30,15 @@ function MyComponent() {
 		'Access-Control-Allow-Credentials': 'true'
 	} })
 	.then( response => response.json())
-	.then( data => console.log(data))
-	.catch(error => console.log(error))
+	.then( data => {
+		console.log(data.results)
+		let returnedArray: any[] = data.results
+		Hotels.push(returnedArray)
+		// setHotels(data.results)
+		console.log(Hotels)
+		console.log('^^')
+	})
+	.catch(error => console.log('error present'))
     setMap(map)
   }, [])
 
@@ -46,6 +55,16 @@ function MyComponent() {
         onUnmount={onUnmount}
       >
         { /* Child components, such as markers, info windows, etc. */ }
+        { Hotels[1] !== undefined ? 
+          Hotels[1].forEach( (hotel: any) => {
+              <Marker
+                position={center}
+                onLoad={onLoad}
+                >
+
+              </Marker>
+          }) : null
+        }
         <></>
       </GoogleMap>
   ) : <></>
