@@ -4,7 +4,7 @@ let NavBar = () => {
     return (
         <div>
             <h1>Concert Connect</h1>
-            <Link to="/TopArtists">
+            <Link to="/Dashboard">
                 <button style={{ width: '150px' }}>Top Artists</button>
             </Link>
             <Link to="/SavedEvents">

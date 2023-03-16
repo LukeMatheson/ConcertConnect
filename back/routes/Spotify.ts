@@ -1,8 +1,35 @@
 import express, { Request, Response } from "express";
 import request from 'request';
 import querystring from 'querystring';
+import sqlite3 from "sqlite3";
+import { open } from "sqlite";
+import * as url from 'url';
+import axios from 'axios';
 
 const spotifyRouter = express.Router();
+
+interface SpotifyAuthType {
+  id: string;
+}
+
+interface SpotifyDbType {
+  spotifyID: number;
+  access_token: string;
+  refresh_token: string;
+}
+
+interface SpotifyArtistsType {
+  name: string,
+  imageURL: string
+}
+
+let __dirname = url.fileURLToPath(new URL("../../..", import.meta.url));
+let dbfile = `${__dirname}database.db`;
+let db = await open({
+    filename: dbfile,
+    driver: sqlite3.Database,
+});
+await db.get("PRAGMA foreign_keys = ON");
 
 var client_id = 'bc93c832a39548c5a59f6320f995e067'; // Your client id
 var client_secret = '644c5383fc4945f4a048f4f8987bf972'; // Your secret
@@ -26,14 +53,12 @@ var generateRandomString = function(length: number) {
 var stateKey = 'spotify_auth_state';
 
 spotifyRouter.get('/login', function(req: Request, res: Response) {
-
-  console.log("get login route hit");
   
   var state = generateRandomString(16);
   res.cookie(stateKey, state);
 
   // your application requests authorization
-  var scope = 'user-read-private user-read-email';
+  var scope = 'user-read-private user-read-email user-top-read';
   res.redirect('https://accounts.spotify.com/authorize?' +
     querystring.stringify({
       response_type: 'code',
@@ -46,8 +71,6 @@ spotifyRouter.get('/login', function(req: Request, res: Response) {
 
 spotifyRouter.get('/callback', function(req: Request, res: Response) {
 
-  console.log("callback route hit");
-  
   // your application requests refresh and access tokens
   // after checking the state parameter
 
@@ -80,23 +103,103 @@ spotifyRouter.get('/callback', function(req: Request, res: Response) {
     request.post(authOptions, function(error, response, body) {
       if (!error && response.statusCode === 200) {
 
-        var access_token = body.access_token,
-            refresh_token = body.refresh_token;
+        var access_token = body.access_token
+        var refresh_token = body.refresh_token;
 
-        // we can also pass the token to the browser to make requests from there
-        res.redirect('http://localhost:3001/?' +
+        var options = {
+          url: 'https://api.spotify.com/v1/me',
+          headers: { 'Authorization': 'Bearer ' + access_token },
+          json: true
+        };
+
+        // use the access token to access the Spotify Web API
+        request.get(options, async function(error, response, body: SpotifyAuthType) {
+
+          var query: SpotifyDbType[] = await db.all(`SELECT * FROM SpotifyUsers where spotifyID = ${body.id}`);
+
+          if (query.length == 0) {
+            let statement = await db.prepare("INSERT INTO SpotifyUsers(spotifyID, access_token, refresh_token) VALUES (?, ?, ?)");
+            
+            await statement.bind([body.id, access_token, refresh_token]);
+            await statement.run();
+          }
+
+          else {
+            
+            let statement = await db.prepare("UPDATE SpotifyUsers SET access_token = ?, refresh_token = ? WHERE spotifyID = ?");
+            await statement.bind([access_token, refresh_token, body.id]);
+            await statement.run();
+
+          }
+
+          res.redirect('http://localhost:3001/Dashboard?' +
           querystring.stringify({
-            access_token: access_token,
-            refresh_token: refresh_token
+            spotifyID: body.id
           }));
-      } else {
-        res.redirect('/#' +
+
+        });
+
+      } 
+      
+      // If invalid access token or some other error, redirect back to login page with error in URL query string.
+      else {
+        res.redirect('/http://localhost:3001/?' +
           querystring.stringify({
             error: 'invalid_token'
           }));
       }
     });
   }
+});
+
+spotifyRouter.get('/topArtists/:id', async function(req: Request, res:Response) {
+  
+  var spotifyID: string = req.params.id;
+  var query: SpotifyDbType[] = await db.all(`SELECT * FROM SpotifyUsers where spotifyID = ${spotifyID}`);
+
+  var access_token: string = query[0].access_token;
+  var data: SpotifyArtistsType[] = [];
+
+  var options = {
+    url: 'https://api.spotify.com/v1/me/top/artists?time_range=medium_term&limit=10&offset=0',
+    headers: { 
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + access_token,
+    },
+    json: true
+  };
+
+  request.get(options, async function(error, response, body) {
+  
+    for (var x = 0; x < body.items.length; x++) {
+      var temp: SpotifyArtistsType = {
+        name: body.items[x].name,
+        imageURL: body.items[x].images[0].url
+      };
+
+      data.push(temp);
+
+    }
+
+    console.log("data");
+    console.log(data);
+
+
+    return res.status(200).json(data);
+    
+  });
+
+  // return res.json(data);
+
+//   axios.get('https://api.spotify.com/v1/me/top/artists?time_range=medium_term&limit=10&offset=0', {
+//     method: 'GET',
+//     headers: {
+//       'Content-Type': 'application/json',
+//       'Authorization': 'Bearer ' + access_token
+//   }
+//   })
+//   .then(response => console.log(response.data))
+//   .catch(error => console.error(error));
 });
 
 spotifyRouter.get('/refresh_token', function(req: Request, res: Response) {
