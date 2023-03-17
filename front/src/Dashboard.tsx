@@ -10,7 +10,8 @@ import Typography from '@mui/material/Typography';
 
 interface ArtistDataType {
     name: string,
-    imageURL: string
+    imageURL: string,
+    id: string
 }
 
 const Dashboard = () => {
@@ -19,8 +20,16 @@ const Dashboard = () => {
 
     useEffect(() => {
         
-        const params = new URLSearchParams(window.location.search);
-        setSpotifyID(params.get("spotifyID") as string);
+        const storedSpotifyID = sessionStorage.getItem("spotifyID");
+        if (storedSpotifyID) {
+            setSpotifyID(storedSpotifyID);
+        }
+        
+        else {
+            const params = new URLSearchParams(window.location.search);
+            setSpotifyID(params.get("spotifyID") as string);
+            sessionStorage.setItem("spotifyID", spotifyID);
+        }
 
         fetch(`/spotify/topArtists/${spotifyID}`)
         .then(res => res.json())
