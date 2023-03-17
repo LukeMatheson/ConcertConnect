@@ -62,7 +62,7 @@ const Dashboard = () => {
                 </Grid>
                 ))}
             </Grid>
-    </div>
+        </div>
     );
 };
 
