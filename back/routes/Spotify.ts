@@ -208,7 +208,7 @@ spotifyRouter.get('/topAlbums/:spotifyID/:artistID', async function(req: Request
   var data: SpotifyArtistAlbumType[] = [];
 
   var options = {
-    url: `https://api.spotify.com/v1/artists/${artistID}/albums?include_groups=album&market=ES&limit=3&offset=0`,
+    url: `https://api.spotify.com/v1/artists/${artistID}/albums?include_groups=album&market=ES&limit=10&offset=0`,
     headers: { 
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ' + access_token,
@@ -223,15 +223,22 @@ spotifyRouter.get('/topAlbums/:spotifyID/:artistID', async function(req: Request
         imageURL: body.items[x].images[0].url,
         albumName: body.items[x].name
       };
-
-      data.push(temp);
-
+    
+      // Check if albumName already exists in data
+      var albumExists = data.some(function(item) {
+        return item.albumName === temp.albumName;
+      });
+    
+      // If albumName doesn't exist, push temp to data
+      if (!albumExists) {
+        data.push(temp);
+      }
     }
 
     console.log("data");
     console.log(data);
 
-    return res.status(200).json(data);
+    return res.status(200).json(data.slice(0, 3));
     
   });
   
