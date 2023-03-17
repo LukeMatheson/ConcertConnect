@@ -17,7 +17,7 @@ interface selectedHotel  {
   photo: string
 }
 
-function MyComponent() {
+function MapComponent() {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: "AIzaSyDYtBn9FOgfklur2ZwTPVkNPJ5j7mudC-E"
@@ -105,4 +105,4 @@ function MyComponent() {
   ) : <></>
 }
 
-export default MyComponent
+export default MapComponent
