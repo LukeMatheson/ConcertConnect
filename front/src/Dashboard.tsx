@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
 import CardMedia from '@mui/material/CardMedia';
@@ -17,6 +18,7 @@ interface ArtistDataType {
 const Dashboard = () => {
     const [spotifyID, setSpotifyID] = useState("");
     const [spotifyArtistData, setSpotifyArtistData] = useState<ArtistDataType[]>([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         
@@ -38,27 +40,29 @@ const Dashboard = () => {
         });
 
     }, [spotifyID]);
+
+    const handleArtistCardClick = (id: string, name: string) => {
+        sessionStorage.setItem('artistID', id);
+        sessionStorage.setItem('artistName', name);
+        navigate('/Artist');
+      };
     
     return (
         <div>
             <h1>Dashboard</h1>
             <Grid container spacing={2}>
                 {spotifyArtistData.map((artist, index) => (
-                    <Grid item xs={12} sm={6} md={4} key={index}>
-                        <Card>
-                            <CardMedia
-                                component="img"
-                                image={artist.imageURL}
-                                title={artist.name}
-                            />
-                            <CardContent>
-                                <Typography variant="h6">{artist.name}</Typography>
-                            </CardContent>
-                        </Card>
-                    </Grid>
+                <Grid item xs={12} sm={6} md={4} key={index}>
+                    <Card onClick={() => handleArtistCardClick(artist.id, artist.name)}>
+                    <CardMedia component="img" image={artist.imageURL} title={artist.name} />
+                    <CardContent>
+                        <Typography variant="h6">{artist.name}</Typography>
+                    </CardContent>
+                    </Card>
+                </Grid>
                 ))}
             </Grid>
-        </div>
+    </div>
     );
 };
 
