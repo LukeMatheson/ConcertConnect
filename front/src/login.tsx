@@ -4,7 +4,7 @@ import '@fontsource/roboto/300.css';
 const Login = () => {
   
   const handleClick = () => {
-    window.location.href = "http://localhost:3000/spotify/login";
+    window.location.href = "/spotify/login";
   };
 
   return (
