@@ -1,6 +1,6 @@
 CREATE TABLE SpotifyUsers (
     id INTEGER PRIMARY KEY,
-    spotifyID INTEGER,
+    spotifyID TEXT,
     access_token TEXT,
     refresh_token TEXT
 );

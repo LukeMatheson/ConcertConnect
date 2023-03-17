@@ -13,7 +13,7 @@ interface SpotifyAuthType {
 }
 
 interface SpotifyDbType {
-  spotifyID: number;
+  spotifyID: string;
   access_token: string;
   refresh_token: string;
 }
@@ -224,12 +224,11 @@ spotifyRouter.get('/topAlbums/:spotifyID/:artistID', async function(req: Request
         albumName: body.items[x].name
       };
     
-      // Check if albumName already exists in data
+      // checking if albumName already exists, some artists had duplicate names.
       var albumExists = data.some(function(item) {
         return item.albumName === temp.albumName;
       });
-    
-      // If albumName doesn't exist, push temp to data
+
       if (!albumExists) {
         data.push(temp);
       }
