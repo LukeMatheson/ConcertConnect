@@ -49,7 +49,7 @@ const Dashboard = () => {
     
     return (
         <div>
-            <h1>Dashboard</h1>
+            <Typography variant="h4" align="center" style={{ padding: '20px' }}>Your Top Artists</Typography>
             <Grid container spacing={2}>
                 {spotifyArtistData.map((artist, index) => (
                 <Grid item xs={12} sm={6} md={4} key={index}>
