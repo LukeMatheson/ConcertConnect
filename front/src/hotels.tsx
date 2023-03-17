@@ -23,7 +23,7 @@ function MyComponent() {
     googleMapsApiKey: "AIzaSyDYtBn9FOgfklur2ZwTPVkNPJ5j7mudC-E"
   })
 
-  const [map, setMap] = React.useState(null)
+  const [map, setMap] = React.useState<any>(null)
   const [Hotels, setHotels] = React.useState<any[]>([])
   const [SelectedHotel, setSelectedHotel] = React.useState<selectedHotel | undefined>(undefined)
   
@@ -51,9 +51,21 @@ function MyComponent() {
     setMap(null)
   }, [])
 
-  const displayHotelInfo = (address: string, name: string, photo: string): void => {
+  const displayHotelInfo = async (address: string, name: string, photo: string, placeId: string) => {
     console.log('clicked on marker')
     setSelectedHotel({name: name, address: address, photo: photo})
+    console.log(`placeId: ${placeId}`)
+    await fetch(`https://greekgram.christianpedro.dev/https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,website&key=AIzaSyDYtBn9FOgfklur2ZwTPVkNPJ5j7mudC-E`,{ headers: {
+		'Access-Control-Allow-Origin': 'http://localhost:3000',
+		'Access-Control-Allow-Credentials': 'true'
+	} })
+	.then( response => response.json())
+	.then( data => {
+		console.log(data.result)
+    window.open(data.result.website, "_")
+	})
+	.catch(error => console.log('couldn`t get hotel website'))
+
     console.log(SelectedHotel)
   }
 
@@ -74,7 +86,7 @@ function MyComponent() {
                 position={hotel.geometry.location}
                 onLoad={onLoad}
                 visible={true}
-                onClick={() => {displayHotelInfo(hotel.formatted_address, hotel.name, hotel.photos[0].photo_reference)}}
+                onClick={() => {displayHotelInfo(hotel.formatted_address, hotel.name, hotel.photos[0].photo_reference, hotel.place_id)}}
                 />
               )
 
