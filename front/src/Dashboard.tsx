@@ -12,7 +12,7 @@ import Typography from '@mui/material/Typography';
 interface ArtistDataType {
     name: string,
     imageURL: string,
-    id: string
+    artistID: string
 }
 
 const Dashboard = () => {
@@ -53,7 +53,7 @@ const Dashboard = () => {
             <Grid container spacing={2}>
                 {spotifyArtistData.map((artist, index) => (
                 <Grid item xs={12} sm={6} md={4} key={index}>
-                    <Card onClick={() => handleArtistCardClick(artist.id, artist.name)}>
+                    <Card onClick={() => handleArtistCardClick(artist.artistID, artist.name)}>
                     <CardMedia component="img" image={artist.imageURL} title={artist.name} />
                     <CardContent>
                         <Typography variant="h6">{artist.name}</Typography>

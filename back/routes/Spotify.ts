@@ -20,7 +20,8 @@ interface SpotifyDbType {
 
 interface SpotifyArtistsType {
   name: string,
-  imageURL: string
+  imageURL: string,
+  artistID: string
 }
 
 let __dirname = url.fileURLToPath(new URL("../../..", import.meta.url));
@@ -174,7 +175,8 @@ spotifyRouter.get('/topArtists/:id', async function(req: Request, res:Response) 
     for (var x = 0; x < body.items.length; x++) {
       var temp: SpotifyArtistsType = {
         name: body.items[x].name,
-        imageURL: body.items[x].images[0].url
+        imageURL: body.items[x].images[0].url,
+        artistID: body.items[x].id
       };
 
       data.push(temp);
