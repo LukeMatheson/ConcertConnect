@@ -15,10 +15,10 @@ let NavBar = () => {
                 <Link to="/Dashboard" style={{ textDecoration: 'none' }}>
                 <Button variant="contained" color="secondary" style={{ backgroundColor: 'green', color: 'white' }}>Top Artists</Button>
                 </Link>
-                <Link to="/Dashboard" style={{ textDecoration: 'none' }}>
+                <Link to="/SavedEvents" style={{ textDecoration: 'none' }}>
                 <Button variant="contained" color="secondary" style={{ backgroundColor: 'green', color: 'white' }}>Saved Events</Button>
                 </Link>
-                <Link to="/Dashboard" style={{ textDecoration: 'none' }}>
+                <Link to="/SearchEvents" style={{ textDecoration: 'none' }}>
                 <Button variant="contained" color="secondary" style={{ backgroundColor: 'green', color: 'white' }}>Search Events</Button>
                 </Link>
             </Toolbar>
