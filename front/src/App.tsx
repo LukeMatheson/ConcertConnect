@@ -5,6 +5,7 @@ import ViewEvent from "./viewEvent";
 import Dashboard from "./Dashboard";
 import SavedEvents from "./savedEvents";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Artist from "./Artist";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
             <Route path="/SavedEvents" element={<SavedEvents />}></Route>
             <Route path="/SearchEvents" element={<EventSearch />}></Route>
             <Route path="/ViewEvent" element={<ViewEvent />}></Route>
+            <Route path="/Artist" element={<Artist />}></Route>
           </Routes>
         </div>
       </div>
