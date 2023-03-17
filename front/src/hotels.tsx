@@ -11,6 +11,12 @@ const center = {
   lng: -75.1652
 };
 
+interface selectedHotel  {
+  name: string,
+  address: string,
+  photo: string
+}
+
 function MyComponent() {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -19,13 +25,12 @@ function MyComponent() {
 
   const [map, setMap] = React.useState(null)
   const [Hotels, setHotels] = React.useState<any[]>([])
+  const [SelectedHotel, setSelectedHotel] = React.useState<selectedHotel | undefined>(undefined)
   
 
   const onLoad = React.useCallback(async function callback(map: any) {
-    // This is just an example of getting and using the map instance!!! don't just blindly copy!
     const bounds = new window.google.maps.LatLngBounds(center);
-    map.fitBounds(bounds);
-	await fetch(`http://127.0.0.1:8080/https://maps.googleapis.com/maps/api/place/textsearch/json?query=coffee+shop&location=${center.lat},${center.lng}&radius=1000&region=us&type=hotel&key=AIzaSyDYtBn9FOgfklur2ZwTPVkNPJ5j7mudC-E`,{ headers: {
+	await fetch(`https://greekgram.christianpedro.dev/https://maps.googleapis.com/maps/api/place/textsearch/json?query=hotels&location=${center.lat},${center.lng}&radius=1000&region=us&type=hotel&key=AIzaSyDYtBn9FOgfklur2ZwTPVkNPJ5j7mudC-E`,{ headers: {
 		'Access-Control-Allow-Origin': 'http://localhost:3000',
 		'Access-Control-Allow-Credentials': 'true'
 	} })
@@ -34,7 +39,7 @@ function MyComponent() {
 		console.log(data.results)
 		let returnedArray: any[] = data.results
 		Hotels.push(returnedArray)
-		// setHotels(data.results)
+		// setHotels(returnedArray)
 		console.log(Hotels)
 		console.log('^^')
 	})
@@ -46,29 +51,41 @@ function MyComponent() {
     setMap(null)
   }, [])
 
+  const displayHotelInfo = (address: string, name: string, photo: string): void => {
+    console.log('clicked on marker')
+    setSelectedHotel({name: name, address: address, photo: photo})
+    console.log(SelectedHotel)
+  }
+
   return isLoaded ? (
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={center}
-        zoom={14}
+        zoom={16}
         onLoad={onLoad}
         onUnmount={onUnmount}
       >
         { /* Child components, such as markers, info windows, etc. */ }
-        { Hotels[1] !== undefined ? 
-          Hotels[1].forEach( (hotel: any) => {
-            console.log('placed marker')
+        { Hotels[0] !== undefined ? 
+          Hotels[0].map( (hotel: any) => {
             return (
               <Marker
-              key={hotel.formatted_address}
-                position={center}
+              key={hotel.place_id}
+                position={hotel.geometry.location}
                 onLoad={onLoad}
                 visible={true}
+                onClick={() => {displayHotelInfo(hotel.formatted_address, hotel.name, hotel.photos[0].photo_reference)}}
                 />
               )
 
           }) : null
         }
+        <div id="hotelInfo">
+          <h1>{ SelectedHotel !== undefined ? SelectedHotel.name : ""}</h1>
+          <h3>{ SelectedHotel !== undefined ? SelectedHotel.address : ""}</h3>
+          <img src={SelectedHotel !== undefined ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${SelectedHotel.photo}&key=AIzaSyDYtBn9FOgfklur2ZwTPVkNPJ5j7mudC-E` : ""}></img>
+
+        </div>
         <></>
       </GoogleMap>
   ) : <></>
