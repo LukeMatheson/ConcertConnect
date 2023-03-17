@@ -5,16 +5,42 @@ function ViewEvent() {
   let location = useLocation();
   let eventData = location.state;
 
-  let handleSaveEvent = () => {
-    // TODO
+  let handleSaveEvent = async () => {
+    try {
+      let eventFields = {
+        //Using my own spotify ID for not until I can grab spotify ID from cookie or however Luke makes it available
+        spotifyID: "12169996453",
+        artistName: eventData.artistName,
+        venue: eventData.venue.name,
+        dateTime: eventData.datetime,
+        lineup: JSON.stringify(eventData.lineup),
+        location: eventData.venue.location
+      };
+
+      let response = await fetch('/bands/saveEvent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(eventFields)
+      });
+
+      if (response.status === 200) {
+        console.log('Event saved successfully!');
+      } else {
+        console.error('Error saving event');
+      }
+
+    } catch (error) {
+      console.error(error);
+    }
   };
+
 
   let handleTicketmasterRedirect = () => {
     let splitLocation = eventData.venue.location.split(",");
-    let splitArtist = eventData.lineup.split(",");
-
     let city = splitLocation[0];
-    let artist = splitArtist[0];
+    let artist = eventData.artistName;
 
     fetch(`/ticketmaster/eventTickets?artist=${artist}&city=${city}`)
       .then((res) => res.json())
@@ -28,7 +54,7 @@ function ViewEvent() {
   };
 
   let handleMapRedirect = () => {
-    // TODO
+    alert("TO DO");
   };
 
   let [notificationMethod, setNotificationMethod] = useState<string>("email");
@@ -76,7 +102,7 @@ function ViewEvent() {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1>Event Details</h1>
+      <h1>Event Details for {eventData.artistName}'s Concert</h1>
       <div
         style={{
           border: "1px solid black",
@@ -92,7 +118,7 @@ function ViewEvent() {
         </p>
         <p>
           <strong>Lineup: </strong>
-          {eventData.lineup.join(", ")}
+          {eventData.lineup}
         </p>
         <p>
           <strong>Location: </strong>
