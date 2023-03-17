@@ -13,6 +13,7 @@ interface Event {
     };
     datetime: string;
     lineup: string[];
+    artistName: string;
 }
 
 
@@ -37,14 +38,22 @@ let EventSearch: React.FC = () => {
                 },
             });
             console.log(response);
-            let data = await response.json();
-            setEventData(data);
+            console.log(searchTerm);
+            let data: Event[] = await response.json();
+            let eventDataWithArtistName = data.map((event) => ({
+                ...event,
+                artistName: searchTerm,
+                datetime: new Date(event.datetime).toLocaleString()
+            }));
+
+            setEventData(eventDataWithArtistName);
         } catch (error) {
             console.error(error);
         }
     };
 
     let handleViewEvent = (eventIndex: number) => {
+        console.log("Artist Name:", eventData[eventIndex].artistName);
         console.log("Venue: ", eventData[eventIndex].venue.name);
         console.log("Date: ", eventData[eventIndex].datetime);
         console.log("Lineup: ", eventData[eventIndex].lineup.join(', '));
@@ -52,8 +61,36 @@ let EventSearch: React.FC = () => {
         navigate('/viewEvent', { state: eventData[eventIndex] });
     };
 
-    let handleSaveEvent = () => {
-        // TODO
+    let handleSaveEvent = async (eventIndex: number) => {
+        try {
+            console.log("saving");
+            let eventFields = {
+                //Using my own spotify ID for not until I can grab spotify ID from cookie or however Luke makes it available
+                spotifyID: "12169996453",
+                artistName: eventData[eventIndex].artistName,
+                venue: eventData[eventIndex].venue.name,
+                dateTime: eventData[eventIndex].datetime,
+                lineup: JSON.stringify(eventData[eventIndex].lineup),
+                location: eventData[eventIndex].venue.location
+            };
+
+            let response = await fetch('/bands/saveEvent', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(eventFields)
+            });
+
+            if (response.status === 200) {
+                console.log('Event saved successfully!');
+            } else {
+                console.error('Error saving event');
+            }
+
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     return (
@@ -74,7 +111,7 @@ let EventSearch: React.FC = () => {
                             <p><strong>Lineup: </strong>{event.lineup.join(', ')}</p>
                             <p><strong>Location: </strong>{event.venue.location}</p>
                             <button onClick={() => handleViewEvent(index)}>View Event</button>
-                            <button onClick={handleSaveEvent}>Save Event</button>
+                            <button onClick={() => handleSaveEvent(index)}>Save Event</button>
                         </div>
                     ))}
                 </>
