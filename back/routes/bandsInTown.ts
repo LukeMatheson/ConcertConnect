@@ -3,6 +3,7 @@ import fs from "fs";
 import sqlite3 from "sqlite3";
 import { open } from "sqlite";
 import url from "url";
+import axios from "axios";
 //import env from "../../env.json" assert { type: "json" };
 const env = JSON.parse(fs.readFileSync('../../env.json', 'utf8'));
 
@@ -27,8 +28,8 @@ bandsInTownRouter.get('/artistEvents', async (req, res) => {
         }
 
         let url = `https://rest.bandsintown.com/artists/${artistName}/events?app_id=${apiKey}`;
-        let response = await fetch(url);
-        let data = await response.json();
+        let response = await axios(url);
+        let data = response.data;
 
         console.log(data);
 
@@ -45,8 +46,8 @@ bandsInTownRouter.get('/artistInfo', async (req, res) => {
         let artistName = "Drake";
 
         let url = `https://rest.bandsintown.com/artists/${artistName}/events?app_id=${apiKey}&date=2022-01-01,2022-12-31`;
-        let response = await fetch(url);
-        let data = await response.json();
+        let response = await axios(url);
+        let data = response.data;
         res.json(data);
     } catch (error) {
         console.error(error);

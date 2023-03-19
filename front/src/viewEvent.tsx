@@ -56,7 +56,8 @@ function ViewEvent() {
 
   let handleMapRedirect = () => {
     alert("TO DO");
-    navigate('/viewMap', { state:  eventData.venue.location.split(",")});
+    let testCoordinates = { lat: 39.9526, lng: -75.1652}
+    navigate('/viewMap', { state:  testCoordinates});
   };
 
   let [notificationMethod, setNotificationMethod] = useState<string>("email");
