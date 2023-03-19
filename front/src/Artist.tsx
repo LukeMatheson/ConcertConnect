@@ -170,6 +170,13 @@ const Artist = () => {
             ))}
           </>
         )}
+        {eventData.length === 0 && (
+          <>
+            <div>
+              <p>No upcoming events</p>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
