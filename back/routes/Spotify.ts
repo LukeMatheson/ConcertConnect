@@ -39,7 +39,7 @@ await db.get("PRAGMA foreign_keys = ON");
 
 var client_id = "bc93c832a39548c5a59f6320f995e067"; // Your client id
 var client_secret = "644c5383fc4945f4a048f4f8987bf972"; // Your secret
-var redirect_uri = "http://localhost:3000/spotify/callback"; // Your redirect uri
+var redirect_uri = "http://localhost:6000/spotify/callback"; // Your redirect uri
 
 /**
  * Generates a random string containing numbers and letters
@@ -144,7 +144,7 @@ spotifyRouter.get("/callback", function (req: Request, res: Response) {
             }
 
             res.redirect(
-              "http://localhost:3001/Dashboard?" +
+              "http://localhost:6001/Dashboard?" +
                 querystring.stringify({
                   spotifyID: body.id,
                 })
@@ -156,7 +156,7 @@ spotifyRouter.get("/callback", function (req: Request, res: Response) {
       // If invalid access token or some other error, redirect back to login page with error in URL query string.
       else {
         res.redirect(
-          "/http://localhost:3001/?" +
+          "/http://localhost:6001/?" +
             querystring.stringify({
               error: "invalid_token",
             })

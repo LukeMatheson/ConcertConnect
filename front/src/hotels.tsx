@@ -31,7 +31,7 @@ function MapComponent() {
   const onLoad = React.useCallback(async function callback(map: any) {
     const bounds = new window.google.maps.LatLngBounds(center);
 	await fetch(`https://greekgram.christianpedro.dev/https://maps.googleapis.com/maps/api/place/textsearch/json?query=hotels&location=${center.lat},${center.lng}&radius=3000&region=us&type=hotel&key=AIzaSyDYtBn9FOgfklur2ZwTPVkNPJ5j7mudC-E`,{ headers: {
-		'Access-Control-Allow-Origin': 'http://localhost:3000',
+		'Access-Control-Allow-Origin': 'http://localhost:6000',
 		'Access-Control-Allow-Credentials': 'true'
 	} })
 	.then( response => response.json())
@@ -51,7 +51,7 @@ function MapComponent() {
     console.log('clicked on marker')
     setSelectedHotel({name: name, address: address, photo: photo})
     await fetch(`https://greekgram.christianpedro.dev/https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,website&key=AIzaSyDYtBn9FOgfklur2ZwTPVkNPJ5j7mudC-E`,{ headers: {
-		'Access-Control-Allow-Origin': 'http://localhost:3000',
+		'Access-Control-Allow-Origin': 'http://localhost:6000',
 		'Access-Control-Allow-Credentials': 'true'
 	} })
 	.then( response => response.json())
