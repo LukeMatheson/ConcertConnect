@@ -1,9 +1,10 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 function ViewEvent() {
   let location = useLocation();
   let eventData = location.state;
+  let navigate = useNavigate();
 
   let handleSaveEvent = async () => {
     try {
@@ -55,6 +56,8 @@ function ViewEvent() {
 
   let handleMapRedirect = () => {
     alert("TO DO");
+    let testCoordinates = { lat: 39.9526, lng: -75.1652}
+    navigate('/viewMap', { state:  testCoordinates});
   };
 
   let [notificationMethod, setNotificationMethod] = useState<string>("email");

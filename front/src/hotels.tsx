@@ -1,15 +1,13 @@
 import React from 'react'
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
+import { useLocation } from 'react-router-dom';
 
 const containerStyle = {
   width: '800px',
   height: '800px'
 };
 
-const center = {
-  lat: 39.9526,
-  lng: -75.1652
-};
+
 
 interface selectedHotel  {
   name: string,
@@ -17,11 +15,13 @@ interface selectedHotel  {
   photo: string
 }
 
-function MyComponent() {
+function MapComponent() {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: "AIzaSyDYtBn9FOgfklur2ZwTPVkNPJ5j7mudC-E"
   })
+  let location = useLocation();
+  let center = location.state;
 
   const [map, setMap] = React.useState<any>(null)
   const [Hotels, setHotels] = React.useState<any[]>([])
@@ -105,4 +105,4 @@ function MyComponent() {
   ) : <></>
 }
 
-export default MyComponent
+export default MapComponent
