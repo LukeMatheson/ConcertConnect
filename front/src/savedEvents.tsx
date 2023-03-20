@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button, Box, Typography } from '@mui/material';
+
 
 let spotifyID = sessionStorage.getItem('spotifyID');
 
@@ -95,43 +97,66 @@ let SavedEvents: React.FC = () => {
 
 
     return (
-        <div className="content">
-            <h1>Saved Events</h1>
+        <Box className="content" sx={{ padding: '20px' }}>
+            <Typography variant="h4" gutterBottom>
+                Saved Events
+            </Typography>
             {removeMessage && (
-                <p style={{ marginTop: "10px" }}>Removed Successfully!</p>
+                <Typography variant="body1" style={{ marginTop: '10px', color: 'green' }}>
+                    Removed Successfully!
+                </Typography>
             )}
             {eventData && eventData.length > 0 ? (
                 <>
                     {eventData.map((event, index) => (
-                        <div
+                        <Box
                             key={index}
-                            style={{ border: '1px solid black', padding: '10px', marginBottom: '10px' }}
+                            sx={{
+                                border: '1px solid black',
+                                padding: '10px',
+                                marginBottom: '10px',
+                            }}
                         >
-                            <p>
+                            <Typography variant="body1">
                                 <strong>Venue: </strong>
                                 {event.venue}
-                            </p>
-                            <p>
+                            </Typography>
+                            <Typography variant="body1">
                                 <strong>Date: </strong>
                                 {event.dateTime}
-                            </p>
-                            <p>
+                            </Typography>
+                            <Typography variant="body1">
                                 <strong>Lineup: </strong>
                                 {event.lineup}
-                            </p>
-                            <p>
+                            </Typography>
+                            <Typography variant="body1">
                                 <strong>Location: </strong>
                                 {event.location}
-                            </p>
-                            <button onClick={() => handleViewEvent(index)}>View Event</button>
-                            <button onClick={() => handleRemoveEvent(index)}>Remove Event</button>
-                        </div>
+                            </Typography>
+                            <Button
+                                onClick={() => handleViewEvent(index)}
+                                variant="contained"
+                                color="secondary"
+                                style={{ backgroundColor: 'green', color: 'white', marginRight: '10px' }}
+                            >
+                                View Event
+                            </Button>
+                            <Button
+                                onClick={() => handleRemoveEvent(index)}
+                                variant="contained"
+                                color="secondary"
+                                style={{ backgroundColor: 'maroon', color: 'white' }}
+                            >
+                                Remove Event
+                            </Button>
+                        </Box>
                     ))}
                 </>
             ) : (
-                <p>No saved events found.</p>
+                <Typography variant="body1">No saved events found.</Typography>
             )}
-        </div>
+        </Box>
+
     );
 };
 
