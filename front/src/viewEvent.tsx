@@ -162,7 +162,7 @@ function ViewEvent() {
     }
   };
 
-
+  console.log(eventData.lineup);
   return (
     <Box sx={{ padding: '20px' }}>
       <Typography variant="h4" gutterBottom>
@@ -197,7 +197,7 @@ function ViewEvent() {
           </Typography>
           <Typography variant="body1" gutterBottom>
             <strong>Lineup: </strong>
-            {eventData.lineup.split(", ").slice(0, 5).join(", ")}
+            {eventData.lineup.slice(0, 5).join(", ")}
           </Typography>
           <Typography variant="body1" gutterBottom>
             <strong>Location: </strong>
