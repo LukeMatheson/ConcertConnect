@@ -9,7 +9,7 @@ const containerStyle = {
 
 
 
-interface selectedHotel  {
+interface selectedHotel {
   name: string,
   address: string,
   photo: string
@@ -26,20 +26,22 @@ function MapComponent() {
   const [map, setMap] = React.useState<any>(null)
   const [Hotels, setHotels] = React.useState<any[]>([])
   const [SelectedHotel, setSelectedHotel] = React.useState<selectedHotel | undefined>(undefined)
-  
+
 
   const onLoad = React.useCallback(async function callback(map: any) {
     const bounds = new window.google.maps.LatLngBounds(center);
-	await fetch(`https://greekgram.christianpedro.dev/https://maps.googleapis.com/maps/api/place/textsearch/json?query=hotels&location=${center.lat},${center.lng}&radius=3000&region=us&type=hotel&key=AIzaSyDYtBn9FOgfklur2ZwTPVkNPJ5j7mudC-E`,{ headers: {
-		'Access-Control-Allow-Origin': 'http://localhost:3000',
-		'Access-Control-Allow-Credentials': 'true'
-	} })
-	.then( response => response.json())
-	.then( data => {
-		let returnedArray: any[] = data.results
-		Hotels.push(returnedArray)
-	})
-	.catch(error => console.log('error present'))
+    await fetch(`https://greekgram.christianpedro.dev/https://maps.googleapis.com/maps/api/place/textsearch/json?query=hotels&location=${center.lat},${center.lng}&radius=3000&region=us&type=hotel&key=AIzaSyDYtBn9FOgfklur2ZwTPVkNPJ5j7mudC-E`, {
+      headers: {
+        'Access-Control-Allow-Origin': 'http://localhost:3000',
+        'Access-Control-Allow-Credentials': 'true'
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        let returnedArray: any[] = data.results
+        Hotels.push(returnedArray)
+      })
+      .catch(error => console.log('error present'))
     setMap(map)
   }, [])
 
@@ -49,27 +51,29 @@ function MapComponent() {
 
   const displayHotelInfo = async (address: string, name: string, photo: string, placeId: string) => {
     console.log('clicked on marker')
-    setSelectedHotel({name: name, address: address, photo: photo})
-    await fetch(`https://greekgram.christianpedro.dev/https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,website&key=AIzaSyDYtBn9FOgfklur2ZwTPVkNPJ5j7mudC-E`,{ headers: {
-		'Access-Control-Allow-Origin': 'http://localhost:3000',
-		'Access-Control-Allow-Credentials': 'true'
-	} })
-	.then( response => response.json())
-	.then( data => {
-		console.log(data.result)
-    window.open(data.result.website, "_")
-	})
-	.catch(error => console.log('couldn`t get hotel website'))
+    setSelectedHotel({ name: name, address: address, photo: photo })
+    await fetch(`https://greekgram.christianpedro.dev/https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,website&key=AIzaSyDYtBn9FOgfklur2ZwTPVkNPJ5j7mudC-E`, {
+      headers: {
+        'Access-Control-Allow-Origin': 'http://localhost:3000',
+        'Access-Control-Allow-Credentials': 'true'
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data.result)
+        window.open(data.result.website, "_")
+      })
+      .catch(error => console.log('couldn`t get hotel website'))
 
   }
 
   return isLoaded ? (
     <div>
-      <h1 style={{textAlign: 'center'}}>Hotels Near by your event</h1>
-      <h3 style={{textAlign: 'center'}}>Click on one to visit the hotel website to make reservation before your event!</h3>
+      <h1 style={{ textAlign: 'center' }}>Hotels Near by your event</h1>
+      <h3 style={{ textAlign: 'center' }}>Click on one to visit the hotel website to make reservation before your event!</h3>
       <hr></hr>
-    
-      <div style={{ justifyContent: 'center', justifyItems: 'center', display: 'flex',}}>
+
+      <div style={{ justifyContent: 'center', justifyItems: 'center', display: 'flex', }}>
         <GoogleMap
           mapContainerStyle={containerStyle}
           center={center}
@@ -77,24 +81,24 @@ function MapComponent() {
           onLoad={onLoad}
           onUnmount={onUnmount}
         >
-          { /* Child components, such as markers, info windows, etc. */ }
-          { Hotels[0] !== undefined ? 
-            Hotels[0].map( (hotel: any) => {
+          { /* Child components, such as markers, info windows, etc. */}
+          {Hotels[0] !== undefined ?
+            Hotels[0].map((hotel: any) => {
               return (
                 <Marker
-                key={hotel.place_id}
+                  key={hotel.place_id}
                   position={hotel.geometry.location}
                   onLoad={onLoad}
                   visible={true}
-                  onClick={() => {displayHotelInfo(hotel.formatted_address, hotel.name, hotel.photos[0].photo_reference, hotel.place_id)}}
-                  />
-                )
+                  onClick={() => { displayHotelInfo(hotel.formatted_address, hotel.name, hotel.photos[0].photo_reference, hotel.place_id) }}
+                />
+              )
 
             }) : null
           }
           <div id="hotelInfo">
-            <h1>{ SelectedHotel !== undefined ? SelectedHotel.name : ""}</h1>
-            <h3>{ SelectedHotel !== undefined ? SelectedHotel.address : ""}</h3>
+            <h1>{SelectedHotel !== undefined ? SelectedHotel.name : ""}</h1>
+            <h3>{SelectedHotel !== undefined ? SelectedHotel.address : ""}</h3>
             <img src={SelectedHotel !== undefined ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${SelectedHotel.photo}&key=AIzaSyDYtBn9FOgfklur2ZwTPVkNPJ5j7mudC-E` : ""}></img>
 
           </div>

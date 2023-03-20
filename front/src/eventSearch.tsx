@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-
+let spotifyID = sessionStorage.getItem('spotifyID');
 
 interface Event {
     artist: {
@@ -10,6 +10,8 @@ interface Event {
     venue: {
         name: string;
         location: string;
+        latitude: number;
+        longitude: number;
     };
     datetime: string;
     lineup: string[];
@@ -58,6 +60,8 @@ let EventSearch: React.FC = () => {
         console.log("Date: ", eventData[eventIndex].datetime);
         console.log("Lineup: ", eventData[eventIndex].lineup.join(', '));
         console.log("Location: ", eventData[eventIndex].venue.location);
+        console.log("Latitude : ", eventData[eventIndex].venue.latitude);
+        console.log("Longitude : ", eventData[eventIndex].venue.longitude);
         navigate('/viewEvent', { state: eventData[eventIndex] });
     };
 
@@ -66,12 +70,14 @@ let EventSearch: React.FC = () => {
             console.log("saving");
             let eventFields = {
                 //Using my own spotify ID for not until I can grab spotify ID from cookie or however Luke makes it available
-                spotifyID: "12169996453",
+                spotifyID: spotifyID,
                 artistName: eventData[eventIndex].artistName,
                 venue: eventData[eventIndex].venue.name,
                 dateTime: eventData[eventIndex].datetime,
                 lineup: JSON.stringify(eventData[eventIndex].lineup),
-                location: eventData[eventIndex].venue.location
+                location: eventData[eventIndex].venue.location,
+                latitude: eventData[eventIndex].venue.latitude,
+                longitude: eventData[eventIndex].venue.longitude
             };
 
             let response = await fetch('/bands/saveEvent', {
