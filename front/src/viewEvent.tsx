@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Button, Box, Typography, TextField, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 
-let spotifyID = sessionStorage.getItem('spotifyID');
+// let spotifyID = sessionStorage.getItem('spotifyID');
 
 function ViewEvent() {
   let location = useLocation();
@@ -17,6 +17,8 @@ function ViewEvent() {
   let [contactInfo, setContactInfo] = useState<string>("");
 
   let handleSaveEvent = async () => {
+    const spotifyID = sessionStorage.getItem("spotifyID");
+    
     try {
       let eventFields = {
         spotifyID: spotifyID,

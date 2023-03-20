@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Box, Typography } from "@mui/material";
 
-let spotifyID = sessionStorage.getItem("spotifyID");
-
 interface Event {
   artistName: string;
   venue: string;
@@ -17,34 +15,44 @@ interface Event {
 let SavedEvents: React.FC = () => {
   let [eventData, setEventData] = useState<Event[]>([]);
   let [removeMessage, setRemoveMessage] = useState(false);
+  const [spotifyID, setSpotifyID] = useState("");
   let navigate = useNavigate();
-  useEffect(() => {
-    let fetchData = async () => {
-      try {
-        let response = await fetch(
-          `/bands/savedEvents?spotifyID=${spotifyID}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
 
-        if (response.ok) {
-          let data: Event[] = await response.json();
-          console.log(data);
-          setEventData(data);
-        } else {
-          console.error("Error fetching saved events");
+  useEffect(() => {
+    const storedSpotifyID = sessionStorage.getItem("spotifyID");
+    if (storedSpotifyID) {
+      setSpotifyID(storedSpotifyID);
+    }
+    
+    let fetchData = async () => {
+      
+      if (spotifyID) {        
+        try {
+          let response = await fetch(
+            `/bands/savedEvents?spotifyID=${spotifyID}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          if (response.ok) {
+            
+            let data: Event[] = await response.json();
+            setEventData(data);
+          } else {
+            console.error("Error fetching saved events");
+          }
+        } catch (error) {
+          console.error(error);
         }
-      } catch (error) {
-        console.error(error);
-      }
+    }
     };
 
     fetchData();
-  }, []);
+  }, [spotifyID]);
 
   let handleViewEvent = (eventIndex: number) => {
     console.log("Artist Name:", eventData[eventIndex].artistName);

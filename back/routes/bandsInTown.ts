@@ -70,6 +70,19 @@ bandsInTownRouter.post('/saveEvent', async (req, res) => {
             let params = [spotifyID, artistName, venue, dateTime, JSON.parse(lineup).join(', '), location, latitude, longitude];
             await db.run(query, params);
 
+            try {
+                query = await db.all(
+                `SELECT * FROM SavedEvents WHERE spotifyID = "${spotifyID}"`
+                );
+            }
+            catch (err) {
+                console.error(err);
+                res.status(500).json({ message: "Error retrieving Spotify ID" });
+            }
+
+            console.log("inside post save event");
+            console.log(query);
+            
             res.status(200).json({ message: "Event saved successfully!" });
         }
 
@@ -100,13 +113,19 @@ bandsInTownRouter.get('/savedEvents', async (req, res) => {
     try {
         console.log("Saved");
         let { spotifyID } = req.query;
-        console.log("req query", req.query);
-        console.log("spotifyID", spotifyID);
-        let query = 'SELECT * FROM SavedEvents WHERE spotifyID = ?';
-        let params = [spotifyID];
-        let result = await db.all(query, params);
-        console.log(result);
-        res.json(result);
+
+        let query = [];
+        try {
+            query = await db.all(
+              `SELECT * FROM SavedEvents WHERE spotifyID = "${spotifyID}"`
+            );
+          }
+          catch (err) {
+            console.error(err);
+            res.status(500).json({ message: "Error retrieving Spotify ID" });
+          }
+
+        return res.status(200).json(query);
     } catch (error) {
         console.error('Error retrieving saved events:', error);
         res.status(500).json({ error: 'Error retrieving saved events' });
