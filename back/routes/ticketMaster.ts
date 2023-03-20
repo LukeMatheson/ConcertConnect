@@ -19,7 +19,7 @@ ticketMasterRouter.get("/eventTickets", async (req, res) => {
 
     // get event link from ticketmaster
     let eventUrl = data._embedded.events[0].url;
-
+    console.log(url);
     res.json({ link: eventUrl });
   } catch (error) {
     res.status(500).json({ message: "Server Error" });

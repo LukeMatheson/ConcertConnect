@@ -17,18 +17,54 @@ let client = twilio(accountSid, authToken);
 
 twilioRoute.post("/sendMessage", async (req, res) => {
   try {
-    let { notificationMethod, contactInfo, name, date, lineup, location } =
-      req.body;
-    console.log(req.body);
-    let messageBody = `A friend has invited to this concert starring Lineup: ${lineup}. This event will be at ${name} on ${date} in ${location}`;
+    let { notificationMethod, contactInfo, name, date, lineup, location, linkToTickets } = req.body;
+    console.log(linkToTickets);
+    let messageBody = `
+    Hey there!
+    
+    I thought you might be interested in this concert with a lineup featuring: ${lineup}. The event will be hosted by ${name} on ${date} in ${location}.
+    
+    You can purchase tickets here: ${linkToTickets}.
+    
+    Hope to see you there!`;
+    let emailMessageBody = `
+    <html>
+      <head>
+        <title></title>
+      </head>
+      <body>
+        <div
+          data-role="module-unsubscribe"
+          class="module"
+          role="module"
+          data-type="unsubscribe"
+          style="color:#444444; font-size:12px; line-height:20px; padding:16px 16px 16px 16px; text-align:Center;"
+          data-muid="4e838cf3-9892-4a6d-94d6-170e474d21e5"
+        >
+          <p style="font-size:16px; line-height:24px;">
+            Hey there!
+          </p>
+          <p style="font-size:16px; line-height:24px;">
+            I thought you might be interested in this concert with a lineup featuring: ${lineup}. The event will be hosted by ${name} on ${date} in ${location}.
+          </p>
+          <p style="font-size:16px; line-height:24px;">
+            You can purchase tickets here: <a href="${linkToTickets}" style="font-family:sans-serif;text-decoration:none;">${linkToTickets}</a>.
+          </p>
+          <p style="font-size:16px; line-height:24px;">
+            Hope to see you there!
+          </p>
+        </div>
+      </body>
+    </html>`;
+    console.log(linkToTickets);
     let message;
     if (notificationMethod === "email") {
       const msg: sendgrid.MailDataRequired = {
         to: contactInfo,
         from: "nd596@drexel.edu",
         subject: `Invitation to ${lineup} concert`,
-        text: messageBody,
-        html: `<p>${messageBody}</p>`,
+        text: emailMessageBody,
+        html: emailMessageBody,
       };
       message = await sendgrid.send(msg);
     } else if (notificationMethod === "sms") {

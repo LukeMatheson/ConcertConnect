@@ -1,23 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+let spotifyID = sessionStorage.getItem('spotifyID');
+
 interface Event {
     artistName: string;
     venue: string;
     dateTime: string;
     lineup: string;
     location: string;
+    latitude: number;
+    longitude: number;
 }
 
 let SavedEvents: React.FC = () => {
     let [eventData, setEventData] = useState<Event[]>([]);
     let navigate = useNavigate();
-
     useEffect(() => {
         let fetchData = async () => {
             try {
-                //Using my own spotify ID for not until I can grab spotify ID from cookie or however Luke makes it available
-                let spotifyID = "12169996453"
                 let response = await fetch(`/bands/savedEvents?spotifyID=${spotifyID}`, {
                     method: 'GET',
                     headers: {
@@ -27,6 +28,7 @@ let SavedEvents: React.FC = () => {
 
                 if (response.ok) {
                     let data: Event[] = await response.json();
+                    console.log(data);
                     setEventData(data);
                 } else {
                     console.error('Error fetching saved events');
@@ -50,7 +52,9 @@ let SavedEvents: React.FC = () => {
             artistName: eventData[eventIndex].artistName,
             venue: {
                 name: eventData[eventIndex].venue,
-                location: eventData[eventIndex].location
+                location: eventData[eventIndex].location,
+                latitude: eventData[eventIndex].latitude,
+                longitude: eventData[eventIndex].longitude
             },
             datetime: eventData[eventIndex].dateTime,
             lineup: eventData[eventIndex].lineup

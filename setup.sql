@@ -11,5 +11,7 @@ CREATE TABLE SavedEvents (
     venue TEXT,
     dateTime dateTime,
     lineup TEXT,
-    location TEXT
+    location TEXT,
+    latitude Float,
+    longitude Float
 );
