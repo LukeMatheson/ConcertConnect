@@ -127,7 +127,7 @@ const Artist = () => {
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   <strong>Lineup: </strong>
-                  {event.lineup.join(", ")}
+                  {event.lineup.slice(0, 5).join(", ")}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   <strong>Location: </strong>

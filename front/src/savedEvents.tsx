@@ -127,7 +127,7 @@ let SavedEvents: React.FC = () => {
                             </Typography>
                             <Typography variant="body1">
                                 <strong>Lineup: </strong>
-                                {event.lineup}
+                                {event.lineup.split(", ").slice(0, 5).join(", ")}
                             </Typography>
                             <Typography variant="body1">
                                 <strong>Location: </strong>
