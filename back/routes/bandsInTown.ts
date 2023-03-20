@@ -33,7 +33,7 @@ bandsInTownRouter.get('/artistEvents', async (req, res) => {
 
         console.log(data[0].artist.url);
 
-        res.json(data);
+        res.status(200).json(data);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server Error' });
@@ -62,7 +62,7 @@ bandsInTownRouter.post('/saveEvent', async (req, res) => {
         let checkQuery = 'SELECT * FROM SavedEvents WHERE spotifyID = ? AND artistName = ? AND dateTime = ?';
         let checkParams = [spotifyID, artistName, dateTime];
         let result = await db.get(checkQuery, checkParams);
-
+        console.log(spotifyID);
         if (result) {
             res.status(409).json({ message: "Event already exists" });
         } else {
@@ -76,6 +76,22 @@ bandsInTownRouter.post('/saveEvent', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Error saving event" });
+    }
+});
+
+bandsInTownRouter.post('/removeEvent', async (req, res) => {
+    try {
+        let { spotifyID, artistName, dateTime } = req.body;
+
+        let query = 'DELETE FROM SavedEvents WHERE spotifyID = ? AND artistName = ? AND dateTime = ?';
+        let params = [spotifyID, artistName, dateTime];
+        let result = await db.run(query, params);
+
+        res.status(200).json({ message: "Event removed successfully!" });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Error removing event" });
     }
 });
 

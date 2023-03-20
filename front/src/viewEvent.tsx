@@ -11,6 +11,7 @@ function ViewEvent() {
   let latitude = Number(parseFloat(eventData.venue.latitude).toFixed(4));
   let longitude = Number(parseFloat(eventData.venue.longitude).toFixed(4));
   let [eventExists, setEventExists] = useState(false);
+  let [savedMessage, setSavedMessage] = useState(false);
   let [messageSent, setMessageSent] = useState(false);
   let [notificationMethod, setNotificationMethod] = useState<string>("email");
   let [contactInfo, setContactInfo] = useState<string>("");
@@ -39,12 +40,15 @@ function ViewEvent() {
       if (response.status === 200) {
         console.log("Event saved successfully!");
         setEventExists(false);
+        setSavedMessage(true);
       } else if (response.status === 409) {
         console.log("Event already exists");
         setEventExists(true);
+        setSavedMessage(false);
       } else {
         console.error("Error saving event");
         setEventExists(false);
+        setSavedMessage(false);
       }
 
     } catch (error) {
@@ -127,7 +131,7 @@ function ViewEvent() {
     }
   };
 
-  let handleSubmit = async (form: React.FormEvent<HTMLFormElement>) => {
+  let handleInvite = async (form: React.FormEvent<HTMLFormElement>) => {
     form.preventDefault();
 
     let splitLocation = eventData.venue.location.split(",");
@@ -210,6 +214,14 @@ function ViewEvent() {
               Event already exists
             </Typography>
           )}
+          {savedMessage && (
+            <Typography
+              variant="body1"
+              style={{ marginTop: '10px', color: 'green' }}
+            >
+              Event saved!
+            </Typography>
+          )}
         </Box>
       </Box>
 
@@ -223,13 +235,13 @@ function ViewEvent() {
           alignItems: 'center',
           marginBottom: '20px',
         }}
-        onSubmit={handleSubmit}
+        onSubmit={handleInvite}
       >
         <Typography variant="h6" gutterBottom>
           Invite Your Friends
         </Typography>
 
-        <Box component="div" sx={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+        <Box component="div" sx={{ display: 'flex', alignItems: 'baseline', marginLeft: '50px', marginBottom: '10px' }}>
           <InputLabel htmlFor="notification-method">Share via</InputLabel>
           <FormControl sx={{ marginLeft: '10px' }}>
             <Select
@@ -237,6 +249,7 @@ function ViewEvent() {
               name="notification-method"
               value={notificationMethod}
               onChange={handleMethodChange}
+              sx={{ minWidth: '200px' }}
             >
               <MenuItem value="email">Email</MenuItem>
               <MenuItem value="sms">SMS</MenuItem>
@@ -244,7 +257,7 @@ function ViewEvent() {
           </FormControl>
         </Box>
 
-        <Box component="div" sx={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+        <Box component="div" sx={{ display: 'flex', alignItems: 'baseline', marginLeft: '10px', marginBottom: '10px' }}>
           <InputLabel htmlFor="contact-info">
             {notificationMethod === 'email' ? 'Email Address' : 'Phone Number'}
           </InputLabel>
@@ -254,7 +267,7 @@ function ViewEvent() {
             value={contactInfo}
             onChange={handleContactChange}
             placeholder={notificationMethod === 'email' ? 'example@example.com' : '123-456-7890'}
-            sx={{ marginLeft: '10px' }}
+            sx={{ marginLeft: '10px', minWidth: '200px' }}
           />
         </Box>
 
@@ -275,7 +288,7 @@ function ViewEvent() {
       </Box>
 
       <Box component="div" sx={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-        <Box component="div" sx={{ border: '1px solid black', padding: '20px', marginRight: '10px' }}>
+        <Box component="div" sx={{ border: '1px solid black', padding: '20px', marginRight: '10px', width: '100%' }}>
           <Typography variant="h6" gutterBottom>
             Ticketmaster Redirect
           </Typography>
@@ -284,7 +297,7 @@ function ViewEvent() {
           </Button>
         </Box>
 
-        <Box component="div" sx={{ border: '1px solid black', padding: '20px' }}>
+        <Box component="div" sx={{ border: '1px solid black', padding: '20px', width: '100%' }}>
           <Typography variant="h6" gutterBottom>
             Map Redirect
           </Typography>
