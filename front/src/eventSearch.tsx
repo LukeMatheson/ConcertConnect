@@ -22,6 +22,7 @@ interface Event {
 let EventSearch: React.FC = () => {
     let [searchTerm, setSearchTerm] = useState<string>('');
     let [eventData, setEventData] = useState<Event[]>([]);
+    let [searchResults, setMessage] = useState(false);
 
     let navigate = useNavigate();
 
@@ -40,28 +41,27 @@ let EventSearch: React.FC = () => {
                 },
             });
             console.log(response);
-            console.log(searchTerm);
-            let data: Event[] = await response.json();
-            let eventDataWithArtistName = data.map((event) => ({
-                ...event,
-                artistName: searchTerm,
-                datetime: new Date(event.datetime).toLocaleString()
-            }));
+            if (response.status == 200) {
+                let data: Event[] = await response.json();
+                let eventDataWithArtistName = data.map((event) => ({
+                    ...event,
+                    artistName: searchTerm,
+                    datetime: new Date(event.datetime).toLocaleString()
+                }));
 
-            setEventData(eventDataWithArtistName);
+                setEventData(eventDataWithArtistName);
+                setMessage(false);
+            } else {
+                setMessage(true);
+            }
+
         } catch (error) {
+            setMessage(true);
             console.error(error);
         }
     };
 
     let handleViewEvent = (eventIndex: number) => {
-        console.log("Artist Name:", eventData[eventIndex].artistName);
-        console.log("Venue: ", eventData[eventIndex].venue.name);
-        console.log("Date: ", eventData[eventIndex].datetime);
-        console.log("Lineup: ", eventData[eventIndex].lineup.join(', '));
-        console.log("Location: ", eventData[eventIndex].venue.location);
-        console.log("Latitude : ", eventData[eventIndex].venue.latitude);
-        console.log("Longitude : ", eventData[eventIndex].venue.longitude);
         navigate('/viewEvent', { state: eventData[eventIndex] });
     };
 
@@ -92,6 +92,7 @@ let EventSearch: React.FC = () => {
                 console.log('Event saved successfully!');
             } else {
                 console.error('Error saving event');
+
             }
 
         } catch (error) {
@@ -107,6 +108,9 @@ let EventSearch: React.FC = () => {
                 <input type="text" name="artist-name" value={searchTerm} onChange={handleSearch} />
                 <button type="submit">Search</button>
             </form>
+            {searchResults && (
+                <p style={{ marginTop: "10px", color: "maroon" }}>Not found</p>
+            )}
             {eventData && eventData.length > 0 && (
                 <>
                     {eventData[0].artist && eventData[0].artist.image_url && <img src={eventData[0].artist.image_url} alt="Event" style={{ width: "300px" }} />}
@@ -117,7 +121,6 @@ let EventSearch: React.FC = () => {
                             <p><strong>Lineup: </strong>{event.lineup.join(', ')}</p>
                             <p><strong>Location: </strong>{event.venue.location}</p>
                             <button onClick={() => handleViewEvent(index)}>View Event</button>
-                            <button onClick={() => handleSaveEvent(index)}>Save Event</button>
                         </div>
                     ))}
                 </>

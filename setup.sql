@@ -6,7 +6,7 @@ CREATE TABLE SpotifyUsers (
 );
 
 CREATE TABLE SavedEvents (
-    spotifyID INTEGER,
+    spotifyID TEXT,
     artistName TEXT,
     venue TEXT,
     dateTime dateTime,
