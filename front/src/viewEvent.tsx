@@ -1,21 +1,34 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { Button, Box, Typography, TextField, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
+
+// let spotifyID = sessionStorage.getItem('spotifyID');
 
 function ViewEvent() {
   let location = useLocation();
   let eventData = location.state;
   let navigate = useNavigate();
+  let latitude = Number(parseFloat(eventData.venue.latitude).toFixed(4));
+  let longitude = Number(parseFloat(eventData.venue.longitude).toFixed(4));
+  let [eventExists, setEventExists] = useState(false);
+  let [savedMessage, setSavedMessage] = useState(false);
+  let [messageSent, setMessageSent] = useState(false);
+  let [notificationMethod, setNotificationMethod] = useState<string>("email");
+  let [contactInfo, setContactInfo] = useState<string>("");
 
   let handleSaveEvent = async () => {
+    const spotifyID = sessionStorage.getItem("spotifyID");
+    
     try {
       let eventFields = {
-        //Using my own spotify ID for not until I can grab spotify ID from cookie or however Luke makes it available
-        spotifyID: "12169996453",
+        spotifyID: spotifyID,
         artistName: eventData.artistName,
         venue: eventData.venue.name,
         dateTime: eventData.datetime,
         lineup: JSON.stringify(eventData.lineup),
-        location: eventData.venue.location
+        location: eventData.venue.location,
+        latitude: latitude,
+        longitude: longitude
       };
 
       let response = await fetch('/bands/saveEvent', {
@@ -27,9 +40,17 @@ function ViewEvent() {
       });
 
       if (response.status === 200) {
-        console.log('Event saved successfully!');
+        console.log("Event saved successfully!");
+        setEventExists(false);
+        setSavedMessage(true);
+      } else if (response.status === 409) {
+        console.log("Event already exists");
+        setEventExists(true);
+        setSavedMessage(false);
       } else {
-        console.error('Error saving event');
+        console.error("Error saving event");
+        setEventExists(false);
+        setSavedMessage(false);
       }
 
     } catch (error) {
@@ -38,49 +59,44 @@ function ViewEvent() {
   };
 
 
-  let handleTicketmasterRedirect = () => {
-    let splitLocation = eventData.venue.location.split(",");
-    let city = splitLocation[0];
-    let artist = eventData.artistName;
-
-    fetch(`/ticketmaster/eventTickets?artist=${artist}&city=${city}`)
-      .then((res) => res.json())
-      .then((data) => {
-        let linkToTickets = data.link;
-        window.open(linkToTickets, "_blank");
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  };
-
   let handleMapRedirect = () => {
-    alert("TO DO");
-    let testCoordinates = { lat: 39.9526, lng: -75.1652}
-    navigate('/viewMap', { state:  testCoordinates});
+    console.log(eventData.venue)
+    let eventCoordinates = { lat: latitude, lng: longitude }
+    navigate('/viewMap', { state: eventCoordinates });
   };
 
-  let [notificationMethod, setNotificationMethod] = useState<string>("email");
-  let [contactInfo, setContactInfo] = useState<string>("");
-
-  let handleMethodChange = (method: React.ChangeEvent<HTMLSelectElement>) => {
-    setNotificationMethod(method.target.value);
+  let handleMethodChange = (event: SelectChangeEvent) => {
+    setNotificationMethod(event.target.value as string);
   };
 
   let handleContactChange = (contact: React.ChangeEvent<HTMLInputElement>) => {
     setContactInfo(contact.target.value);
   };
 
-  let handleSubmit = (form: React.FormEvent<HTMLFormElement>) => {
-    form.preventDefault();
-    console.log(`Notification method:`, notificationMethod);
-    console.log(`Contact info: ${contactInfo}`);
-    console.log(`Name: `, eventData.venue.name);
-    console.log(`Date: `, eventData.datetime);
-    console.log(`Lineup: `, JSON.stringify(eventData.lineup));
-    console.log(`Location: `, eventData.venue.location);
 
-    fetch("/twilio/sendMessage", {
+  let getTicketmasterLink = async (artist: string, city: string) => {
+    let res = await fetch(`/ticketmaster/eventTickets?artist=${artist}&city=${city}`);
+    let data = await res.json();
+    return data.link;
+  };
+
+  let getBandsLink = async (artist: string) => {    
+    let res = await fetch(`/bands/eventTickets?artist=${artist}`);
+    let data = await res.json();
+
+    return data.link;
+  };
+
+  let sendTwilioMessage = async (
+    notificationMethod: string,
+    contactInfo: string,
+    name: string,
+    date: string,
+    lineup: string,
+    location: string,
+    linkToTickets: string
+  ) => {
+    let response = await fetch("/twilio/sendMessage", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -88,118 +104,212 @@ function ViewEvent() {
       body: JSON.stringify({
         notificationMethod,
         contactInfo,
-        name: eventData.venue.name,
-        date: eventData.datetime,
-        lineup: eventData.lineup,
-        location: eventData.venue.location,
+        name,
+        date,
+        lineup,
+        location,
+        linkToTickets,
       }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    });
+
+    let data = await response.json();
+    return data;
   };
 
+  let handleTicketmasterRedirect = async () => {
+    let splitLocation = eventData.venue.location.split(",");
+    let city = splitLocation[0];
+    let artist = eventData.artistName;
+
+    try {
+      let linkToTickets = await getTicketmasterLink(artist, city);
+
+      if (!linkToTickets) {
+        linkToTickets = await getBandsLink(artist);
+      }
+
+      window.open(linkToTickets, "_blank");
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  let handleInvite = async (form: React.FormEvent<HTMLFormElement>) => {
+    form.preventDefault();
+
+    let splitLocation = eventData.venue.location.split(",");
+    let city = splitLocation[0];
+    let artist = eventData.artistName;
+
+    try {
+      let linkToTickets = await getTicketmasterLink(artist, city);
+
+      if (!linkToTickets) {
+        linkToTickets = await getBandsLink(artist);
+      }
+
+      let data = await sendTwilioMessage(
+        notificationMethod,
+        contactInfo,
+        eventData.venue.name,
+        eventData.datetime,
+        eventData.lineup,
+        eventData.venue.location,
+        linkToTickets
+      );
+
+      setMessageSent(true);
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  console.log(eventData.lineup);
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Event Details for {eventData.artistName}'s Concert</h1>
-      <div
-        style={{
-          border: "1px solid black",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+    <Box sx={{ padding: '20px' }}>
+      <Typography variant="h4" gutterBottom>
+        Event Details for {eventData.artistName}'s Concert
+      </Typography>
+
+      <Box
+        component="div"
+        sx={{
+          border: '1px solid black',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          padding: '20px',
+          marginBottom: '20px',
         }}
       >
-        <h2 style={{ marginTop: "20px" }}>{eventData.venue.name}</h2>
-        <p>
-          <strong>Date: </strong>
-          {eventData.datetime}
-        </p>
-        <p>
-          <strong>Lineup: </strong>
-          {eventData.lineup}
-        </p>
-        <p>
-          <strong>Location: </strong>
-          {eventData.venue.location}
-        </p>
-        <button style={{ marginTop: "20px" }} onClick={handleSaveEvent}>
-          Save Event
-        </button>
-      </div>
-      <form
-        style={{
-          marginTop: "20px",
-          border: "1px solid black",
-          padding: "10px",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-        onSubmit={handleSubmit}
-      >
-        <h2>Invite Your Friends</h2>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <label htmlFor="notification-method" style={{ marginRight: "10px" }}>
-            Share via:
-          </label>
-          <select
-            id="notification-method"
-            name="notification-method"
-            value={notificationMethod}
-            onChange={handleMethodChange}
-          >
-            <option value="email">Email</option>
-            <option value="sms">SMS</option>
-          </select>
-        </div>
-        <div
-          style={{ display: "flex", alignItems: "center", marginTop: "10px" }}
+        <Box
+          component="div"
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
         >
-          <label htmlFor="contact-info" style={{ marginRight: "10px" }}>
-            Contact Info:
-          </label>
-          <input
-            type="text"
+          <Typography variant="h6" gutterBottom>
+            {eventData.venue.name}
+          </Typography>
+          <Typography variant="body1" gutterBottom>
+            <strong>Date: </strong>
+            {eventData.datetime}
+          </Typography>
+          <Typography variant="body1" gutterBottom>
+            <strong>Lineup: </strong>
+            {eventData.lineup.slice(0, 5).join(", ")}
+          </Typography>
+          <Typography variant="body1" gutterBottom>
+            <strong>Location: </strong>
+            {eventData.venue.location}
+          </Typography>
+          <Button onClick={handleSaveEvent} variant="contained" color="secondary" style={{ backgroundColor: 'green', color: 'white' }}>
+            Save Event
+          </Button>
+          {eventExists && (
+            <Typography
+              variant="body1"
+              style={{ marginTop: '10px', color: 'red' }}
+            >
+              Event already exists
+            </Typography>
+          )}
+          {savedMessage && (
+            <Typography
+              variant="body1"
+              style={{ marginTop: '10px', color: 'green' }}
+            >
+              Event saved!
+            </Typography>
+          )}
+        </Box>
+      </Box>
+
+      <Box
+        component="form"
+        sx={{
+          border: '1px solid black',
+          padding: '20px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          marginBottom: '20px',
+        }}
+        onSubmit={handleInvite}
+      >
+        <Typography variant="h6" gutterBottom>
+          Invite Your Friends
+        </Typography>
+
+        <Box component="div" sx={{ display: 'flex', alignItems: 'baseline', marginLeft: '50px', marginBottom: '10px' }}>
+          <InputLabel htmlFor="notification-method">Share via</InputLabel>
+          <FormControl sx={{ marginLeft: '10px' }}>
+            <Select
+              id="notification-method"
+              name="notification-method"
+              value={notificationMethod}
+              onChange={handleMethodChange}
+              sx={{ minWidth: '200px' }}
+            >
+              <MenuItem value="email">Email</MenuItem>
+              <MenuItem value="sms">SMS</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+
+        <Box component="div" sx={{ display: 'flex', alignItems: 'baseline', marginLeft: '10px', marginBottom: '10px' }}>
+          <InputLabel htmlFor="contact-info">
+            {notificationMethod === 'email' ? 'Email Address' : 'Phone Number'}
+          </InputLabel>
+          <TextField
             id="contact-info"
             name="contact-info"
             value={contactInfo}
             onChange={handleContactChange}
+            placeholder={notificationMethod === 'email' ? 'example@example.com' : '123-456-7890'}
+            sx={{ marginLeft: '10px', minWidth: '200px' }}
           />
-        </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginTop: "10px",
-          }}
-        >
-          <button type="submit">Send</button>
-        </div>
-      </form>
-      <div
-        style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}
-      >
-        <div
-          style={{
-            border: "1px solid black",
-            padding: "10px",
-            marginRight: "10px",
-          }}
-        >
-          <h2>Ticketmaster Redirect</h2>
-          <button onClick={handleTicketmasterRedirect}>Buy Tickets</button>
-        </div>
-        <div style={{ border: "1px solid black", padding: "10px" }}>
-          <h2>Map Redirect</h2>
-          <button onClick={handleMapRedirect}>Map</button>
-        </div>
-      </div>
-    </div>
+        </Box>
+
+        <Box component="div" sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+          <Button type="submit" variant="contained" color="secondary" style={{ backgroundColor: 'green', color: 'white' }}>
+            Send
+          </Button>
+
+        </Box>
+        {messageSent && (
+          <Typography
+            variant="body1"
+            style={{ marginTop: '10px' }}
+          >
+            Invite Shared
+          </Typography>
+        )}
+      </Box>
+
+      <Box component="div" sx={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+        <Box component="div" sx={{ border: '1px solid black', padding: '20px', marginRight: '10px', width: '100%' }}>
+          <Typography variant="h6" gutterBottom>
+            Ticketmaster Redirect
+          </Typography>
+          <Button onClick={handleTicketmasterRedirect} variant="contained" color="secondary" style={{ backgroundColor: 'green', color: 'white' }}>
+            Buy Tickets
+          </Button>
+        </Box>
+
+        <Box component="div" sx={{ border: '1px solid black', padding: '20px', width: '100%' }}>
+          <Typography variant="h6" gutterBottom>
+            Map Redirect
+          </Typography>
+          <Button onClick={handleMapRedirect} variant="contained" color="secondary" style={{ backgroundColor: 'green', color: 'white' }}>
+            Map
+          </Button>
+        </Box>
+      </Box>
+    </Box>
   );
 }
 

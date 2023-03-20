@@ -6,10 +6,12 @@ CREATE TABLE SpotifyUsers (
 );
 
 CREATE TABLE SavedEvents (
-    spotifyID INTEGER,
+    spotifyID TEXT,
     artistName TEXT,
     venue TEXT,
     dateTime dateTime,
     lineup TEXT,
-    location TEXT
+    location TEXT,
+    latitude Float,
+    longitude Float
 );

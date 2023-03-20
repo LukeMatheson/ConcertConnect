@@ -4,7 +4,12 @@ import Card from "@mui/material/Card";
 import CardMedia from "@mui/material/CardMedia";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import { useNavigate } from "react-router-dom";
+import { color } from "@mui/system";
+
+let spotifyID = sessionStorage.getItem("spotifyID");
 
 interface SpotifyArtistAlbumType {
   imageURL: string;
@@ -35,43 +40,7 @@ const Artist = () => {
   let navigate = useNavigate();
 
   let handleViewEvent = (eventIndex: number) => {
-    // console.log("Artist Name:", eventData[eventIndex].artistName);
-    // console.log("Venue: ", eventData[eventIndex].venue.name);
-    // console.log("Date: ", eventData[eventIndex].datetime);
-    // console.log("Lineup: ", eventData[eventIndex].lineup.join(", "));
-    // console.log("Location: ", eventData[eventIndex].venue.location);
     navigate("/viewEvent", { state: eventData[eventIndex] });
-  };
-
-  let handleSaveEvent = async (eventIndex: number) => {
-    try {
-      console.log("saving");
-      let eventFields = {
-        //Using my own spotify ID for not until I can grab spotify ID from cookie or however Luke makes it available
-        spotifyID: "12169996453",
-        artistName: eventData[eventIndex].artistName,
-        venue: eventData[eventIndex].venue.name,
-        dateTime: eventData[eventIndex].datetime,
-        lineup: JSON.stringify(eventData[eventIndex].lineup),
-        location: eventData[eventIndex].venue.location,
-      };
-
-      let response = await fetch("/bands/saveEvent", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(eventFields),
-      });
-
-      if (response.status === 200) {
-        console.log("Event saved successfully!");
-      } else {
-        console.error("Error saving event");
-      }
-    } catch (error) {
-      console.error(error);
-    }
   };
 
   useEffect(() => {
@@ -131,53 +100,59 @@ const Artist = () => {
           ))}
         </Grid>
       </div>
-      <div className="content">
-        <h1>Upcoming Events</h1>
+      <Box className="content">
+        <Typography variant="h4" gutterBottom>
+          Upcoming Events
+        </Typography>
+
         {eventData && eventData.length > 0 && (
           <>
             {eventData.map((event, index) => (
-              <div
+              <Box
                 key={index}
-                style={{
+                component="div"
+                sx={{
                   border: "1px solid black",
                   padding: "10px",
                   marginBottom: "10px",
                 }}
               >
-                <p>
+                <Typography variant="body1" gutterBottom>
                   <strong>Venue: </strong>
                   {event.venue.name}
-                </p>
-                <p>
+                </Typography>
+                <Typography variant="body1" gutterBottom>
                   <strong>Date: </strong>
                   {event.datetime}
-                </p>
-                <p>
+                </Typography>
+                <Typography variant="body1" gutterBottom>
                   <strong>Lineup: </strong>
-                  {event.lineup.join(", ")}
-                </p>
-                <p>
+                  {event.lineup.slice(0, 5).join(", ")}
+                </Typography>
+                <Typography variant="body1" gutterBottom>
                   <strong>Location: </strong>
                   {event.venue.location}
-                </p>
-                <button onClick={() => handleViewEvent(index)}>
+                </Typography>
+                <Button
+                  onClick={() => handleViewEvent(index)}
+                  variant="contained"
+                  style={{ backgroundColor: "green" }}
+                >
                   View Event
-                </button>
-                <button onClick={() => handleSaveEvent(index)}>
-                  Save Event
-                </button>
-              </div>
+                </Button>
+              </Box>
             ))}
           </>
         )}
+
         {eventData.length === 0 && (
-          <>
-            <div>
-              <p>No upcoming events</p>
-            </div>
-          </>
+          <Box component="div">
+            <Typography variant="body1" gutterBottom>
+              No upcoming events
+            </Typography>
+          </Box>
         )}
-      </div>
+      </Box>
     </div>
   );
 };

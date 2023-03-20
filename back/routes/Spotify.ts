@@ -124,11 +124,20 @@ spotifyRouter.get("/callback", function (req: Request, res: Response) {
         request.get(
           options,
           async function (error, response, body: SpotifyAuthType) {
-            var query: SpotifyDbType[] = await db.all(
-              `SELECT * FROM SpotifyUsers where spotifyID = "${body.id}"`
-            );
+            var query: SpotifyDbType[] = [];
+            try {
+              query = await db.all(
+                `SELECT * FROM SpotifyUsers where spotifyID = "${body.id}"`
+              );
+            }
+            catch (err) {
+              console.error(err);
+              res.status(500).json({ message: "Error retrieving Spotify ID" });
+            }
 
+            try {
             if (query.length == 0) {
+            
               let statement = await db.prepare(
                 "INSERT INTO SpotifyUsers(spotifyID, access_token, refresh_token) VALUES (?, ?, ?)"
               );
@@ -142,6 +151,11 @@ spotifyRouter.get("/callback", function (req: Request, res: Response) {
               await statement.bind([access_token, refresh_token, body.id]);
               await statement.run();
             }
+          }
+          catch (err) {
+            console.error(err);
+            res.status(500).json({ message: "Error inserting or updating Spotify ID" });
+          }
 
             res.redirect(
               "https://concertconnect.christianpedro.dev/Dashboard?" +
@@ -170,9 +184,20 @@ spotifyRouter.get(
   "/topArtists/:id",
   async function (req: Request, res: Response) {
     var spotifyID: string = req.params.id;
-    var query: SpotifyDbType[] = await db.all(
-      `SELECT * FROM SpotifyUsers where spotifyID = "${spotifyID}"`
-    );
+    var query: SpotifyDbType[] = [];
+    try {
+      query = await db.all(
+        `SELECT * FROM SpotifyUsers where spotifyID = "${spotifyID}"`
+      );
+    }
+    catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Error retrieving Spotify ID" });
+    }
+    
+    if (query.length == 0) {
+      return res.status(404).json( { message: "Spotify ID not found."});
+    }
 
     var access_token: string = query[0].access_token;
     var data: SpotifyArtistsType[] = [];
@@ -186,22 +211,23 @@ spotifyRouter.get(
       json: true,
     };
 
-    request.get(options, async function (error, response, body) {
-      for (var x = 0; x < body.items.length; x++) {
-        var temp: SpotifyArtistsType = {
-          name: body.items[x].name,
-          imageURL: body.items[x].images[0].url,
-          artistID: body.items[x].id,
-        };
+      request.get(options, async function (error, response, body) {
+        if (body.error) {
+          return res.status(body.error.status).json({ message: body.error.message });
+        }
+        
+        for (var x = 0; x < body.items.length; x++) {
+          var temp: SpotifyArtistsType = {
+            name: body.items[x].name,
+            imageURL: body.items[x].images[0].url,
+            artistID: body.items[x].id,
+          };
 
-        data.push(temp);
-      }
+          data.push(temp);
+        }
 
-      console.log("data");
-      console.log(data);
-
-      return res.status(200).json(data);
-    });
+        return res.status(200).json(data);
+      });
   }
 );
 
@@ -209,9 +235,21 @@ spotifyRouter.get(
   "/topAlbums/:spotifyID/:artistID",
   async function (req: Request, res: Response) {
     var spotifyID: string = req.params.spotifyID;
-    var query: SpotifyDbType[] = await db.all(
-      `SELECT * FROM SpotifyUsers where spotifyID = "${spotifyID}"`
-    );
+
+    var query: SpotifyDbType[] = [];
+    try {
+      query = await db.all(
+        `SELECT * FROM SpotifyUsers where spotifyID = "${spotifyID}"`
+      );
+    }
+    catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Error retrieving Spotify ID" });
+    }
+
+    if (query.length == 0) {
+      return res.status(404).json( { message: "Spotify ID not found."});
+    }
 
     var access_token: string = query[0].access_token;
     var artistID = req.params.artistID;
@@ -227,7 +265,11 @@ spotifyRouter.get(
       json: true,
     };
 
-    request.get(options, async function (error, response, body) {
+    request.get(options, async function (error, response, body) {        
+      if (body.error) {
+        return res.status(body.error.status).json({ message: body.error.message });
+      }
+      
       for (var x = 0; x < body.items.length; x++) {
         var temp: SpotifyArtistAlbumType = {
           imageURL: body.items[x].images[0].url,
@@ -244,9 +286,7 @@ spotifyRouter.get(
         }
       }
 
-      console.log("data");
-      console.log(data);
-
+      //Only returning 3 albums so that Arist page is just one row of 3 album pictures.
       return res.status(200).json(data.slice(0, 3));
     });
   }
