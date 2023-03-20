@@ -22,9 +22,22 @@ bandsInTownRouter.get("/artistEvents", async (req, res) => {
   try {
     let artistName = req.query.artist;
 
-    if (!artistName) {
-      res.status(400).json({ message: "Error, artist name missing" });
-      return;
+
+        if (!artistName) {
+            res.status(400).json({ message: 'Error, artist name missing' });
+            return;
+        }
+
+        let url = `https://rest.bandsintown.com/artists/${artistName}/events?app_id=${apiKey}`;
+        let response = await axios(url);
+        let data = response.data;
+
+        console.log(data[0].artist.url);
+
+        res.status(200).json(data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
     }
 
     let url = `https://rest.bandsintown.com/artists/${artistName}/events?app_id=${apiKey}`;
@@ -40,6 +53,25 @@ bandsInTownRouter.get("/artistEvents", async (req, res) => {
   }
 });
 
+
+bandsInTownRouter.post('/saveEvent', async (req, res) => {
+    try {
+        let { spotifyID, artistName, venue, dateTime, lineup, location, latitude, longitude } = req.body;
+
+        let checkQuery = 'SELECT * FROM SavedEvents WHERE spotifyID = ? AND artistName = ? AND dateTime = ?';
+        let checkParams = [spotifyID, artistName, dateTime];
+        let result = await db.get(checkQuery, checkParams);
+        console.log(spotifyID);
+        if (result) {
+            res.status(409).json({ message: "Event already exists" });
+        } else {
+            let query = 'INSERT INTO SavedEvents (spotifyID, artistName, venue, dateTime, lineup, location, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+            let params = [spotifyID, artistName, venue, dateTime, JSON.parse(lineup).join(', '), location, latitude, longitude];
+            await db.run(query, params);
+
+            res.status(200).json({ message: "Event saved successfully!" });
+        }
+
 bandsInTownRouter.get("/artistInfo", async (req, res) => {
   try {
     let artistName = "Drake";
@@ -53,6 +85,7 @@ bandsInTownRouter.get("/artistInfo", async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 });
+
 
 bandsInTownRouter.post("/saveEvent", async (req, res) => {
   try {
@@ -96,6 +129,38 @@ bandsInTownRouter.post("/saveEvent", async (req, res) => {
   }
 });
 
+
+bandsInTownRouter.post('/removeEvent', async (req, res) => {
+    try {
+        let { spotifyID, artistName, dateTime } = req.body;
+
+        let query = 'DELETE FROM SavedEvents WHERE spotifyID = ? AND artistName = ? AND dateTime = ?';
+        let params = [spotifyID, artistName, dateTime];
+        let result = await db.run(query, params);
+
+        res.status(200).json({ message: "Event removed successfully!" });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Error removing event" });
+    }
+});
+
+
+bandsInTownRouter.get('/savedEvents', async (req, res) => {
+    try {
+        console.log("Saved");
+        let { spotifyID } = req.query;
+        let query = 'SELECT * FROM SavedEvents WHERE spotifyID = ?';
+        let params = [spotifyID];
+        let result = await db.all(query, params);
+        console.log(result);
+        res.json(result);
+    } catch (error) {
+        console.error('Error retrieving saved events:', error);
+        res.status(500).json({ error: 'Error retrieving saved events' });
+    }
+
 bandsInTownRouter.get("/savedEvents", async (req, res) => {
   try {
     console.log("Saved");
@@ -109,6 +174,7 @@ bandsInTownRouter.get("/savedEvents", async (req, res) => {
     console.error("Error retrieving saved events:", error);
     res.status(500).json({ error: "Error retrieving saved events" });
   }
+
 });
 
 bandsInTownRouter.get("/eventTickets", async (req, res) => {

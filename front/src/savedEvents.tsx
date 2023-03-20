@@ -15,6 +15,7 @@ interface Event {
 
 let SavedEvents: React.FC = () => {
     let [eventData, setEventData] = useState<Event[]>([]);
+    let [removeMessage, setRemoveMessage] = useState(false);
     let navigate = useNavigate();
     useEffect(() => {
         let fetchData = async () => {
@@ -63,10 +64,42 @@ let SavedEvents: React.FC = () => {
         navigate('/viewEvent', { state: restructuredEventData });
     };
 
+    let handleRemoveEvent = async (eventIndex: number) => {
+        try {
+            let response = await fetch('/bands/removeEvent', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    spotifyID: spotifyID,
+                    artistName: eventData[eventIndex].artistName,
+                    dateTime: eventData[eventIndex].dateTime,
+                }),
+            });
+
+            let data = await response.json();
+            console.log(data);
+
+            if (response.status === 200) {
+                setRemoveMessage(true);
+                let updatedEvents = eventData.filter((_, index) => index !== eventIndex);
+                setEventData(updatedEvents);
+            } else {
+                console.error(data.message);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
 
     return (
         <div className="content">
             <h1>Saved Events</h1>
+            {removeMessage && (
+                <p style={{ marginTop: "10px" }}>Removed Successfully!</p>
+            )}
             {eventData && eventData.length > 0 ? (
                 <>
                     {eventData.map((event, index) => (
@@ -91,6 +124,7 @@ let SavedEvents: React.FC = () => {
                                 {event.location}
                             </p>
                             <button onClick={() => handleViewEvent(index)}>View Event</button>
+                            <button onClick={() => handleRemoveEvent(index)}>Remove Event</button>
                         </div>
                     ))}
                 </>
