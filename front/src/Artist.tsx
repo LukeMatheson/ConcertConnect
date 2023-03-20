@@ -6,6 +6,9 @@ import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import { useNavigate } from "react-router-dom";
 
+let spotifyID = sessionStorage.getItem('spotifyID');
+
+
 interface SpotifyArtistAlbumType {
   imageURL: string;
   albumName: string;
@@ -48,7 +51,7 @@ const Artist = () => {
       console.log("saving");
       let eventFields = {
         //Using my own spotify ID for not until I can grab spotify ID from cookie or however Luke makes it available
-        spotifyID: "12169996453",
+        spotifyID: spotifyID,
         artistName: eventData[eventIndex].artistName,
         venue: eventData[eventIndex].venue.name,
         dateTime: eventData[eventIndex].datetime,

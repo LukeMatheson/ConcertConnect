@@ -98,7 +98,6 @@ bandsInTownRouter.get('/savedEvents', async (req, res) => {
 bandsInTownRouter.get('/eventTickets', async (req, res) => {
     try {
         let artistName = req.query.artist;
-        console.log("bands ticket url");
         let url = `https://rest.bandsintown.com/artists/${artistName}/events?app_id=${apiKey}`;
         let response = await fetch(url);
         let data = await response.json();
