@@ -4,10 +4,12 @@ import Card from "@mui/material/Card";
 import CardMedia from "@mui/material/CardMedia";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import { useNavigate } from "react-router-dom";
+import { color } from "@mui/system";
 
-let spotifyID = sessionStorage.getItem('spotifyID');
-
+let spotifyID = sessionStorage.getItem("spotifyID");
 
 interface SpotifyArtistAlbumType {
   imageURL: string;
@@ -98,50 +100,59 @@ const Artist = () => {
           ))}
         </Grid>
       </div>
-      <div className="content">
-        <h1>Upcoming Events</h1>
+      <Box className="content">
+        <Typography variant="h4" gutterBottom>
+          Upcoming Events
+        </Typography>
+
         {eventData && eventData.length > 0 && (
           <>
             {eventData.map((event, index) => (
-              <div
+              <Box
                 key={index}
-                style={{
+                component="div"
+                sx={{
                   border: "1px solid black",
                   padding: "10px",
                   marginBottom: "10px",
                 }}
               >
-                <p>
+                <Typography variant="body1" gutterBottom>
                   <strong>Venue: </strong>
                   {event.venue.name}
-                </p>
-                <p>
+                </Typography>
+                <Typography variant="body1" gutterBottom>
                   <strong>Date: </strong>
                   {event.datetime}
-                </p>
-                <p>
+                </Typography>
+                <Typography variant="body1" gutterBottom>
                   <strong>Lineup: </strong>
                   {event.lineup.join(", ")}
-                </p>
-                <p>
+                </Typography>
+                <Typography variant="body1" gutterBottom>
                   <strong>Location: </strong>
                   {event.venue.location}
-                </p>
-                <button onClick={() => handleViewEvent(index)}>
+                </Typography>
+                <Button
+                  onClick={() => handleViewEvent(index)}
+                  variant="contained"
+                  style={{ backgroundColor: "green" }}
+                >
                   View Event
-                </button>
-              </div>
+                </Button>
+              </Box>
             ))}
           </>
         )}
+
         {eventData.length === 0 && (
-          <>
-            <div>
-              <p>No upcoming events</p>
-            </div>
-          </>
+          <Box component="div">
+            <Typography variant="body1" gutterBottom>
+              No upcoming events
+            </Typography>
+          </Box>
         )}
-      </div>
+      </Box>
     </div>
   );
 };
