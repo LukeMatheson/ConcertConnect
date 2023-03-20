@@ -1,8 +1,18 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Button, Box, Typography, TextField, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
+import {
+  Button,
+  Box,
+  Typography,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  SelectChangeEvent,
+} from "@mui/material";
 
-let spotifyID = sessionStorage.getItem('spotifyID');
+let spotifyID = sessionStorage.getItem("spotifyID");
 
 function ViewEvent() {
   let location = useLocation();
@@ -26,15 +36,15 @@ function ViewEvent() {
         lineup: JSON.stringify(eventData.lineup),
         location: eventData.venue.location,
         latitude: latitude,
-        longitude: longitude
+        longitude: longitude,
       };
 
-      let response = await fetch('/bands/saveEvent', {
-        method: 'POST',
+      let response = await fetch("/bands/saveEvent", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(eventFields)
+        body: JSON.stringify(eventFields),
       });
 
       if (response.status === 200) {
@@ -50,17 +60,15 @@ function ViewEvent() {
         setEventExists(false);
         setSavedMessage(false);
       }
-
     } catch (error) {
       console.error(error);
     }
   };
 
-
   let handleMapRedirect = () => {
-    console.log(eventData.venue)
-    let eventCoordinates = { lat: latitude, lng: longitude }
-    navigate('/viewMap', { state: eventCoordinates });
+    console.log(eventData.venue);
+    let eventCoordinates = { lat: latitude, lng: longitude };
+    navigate("/viewMap", { state: eventCoordinates });
   };
 
   let handleMethodChange = (event: SelectChangeEvent) => {
@@ -71,9 +79,10 @@ function ViewEvent() {
     setContactInfo(contact.target.value);
   };
 
-
   let getTicketmasterLink = async (artist: string, city: string) => {
-    let res = await fetch(`/ticketmaster/eventTickets?artist=${artist}&city=${city}`);
+    let res = await fetch(
+      `/ticketmaster/eventTickets?artist=${artist}&city=${city}`
+    );
     let data = await res.json();
     return data.link;
   };
@@ -162,9 +171,8 @@ function ViewEvent() {
     }
   };
 
-
   return (
-    <Box sx={{ padding: '20px' }}>
+    <Box sx={{ padding: "20px" }}>
       <Typography variant="h4" gutterBottom>
         Event Details for {eventData.artistName}'s Concert
       </Typography>
@@ -172,20 +180,20 @@ function ViewEvent() {
       <Box
         component="div"
         sx={{
-          border: '1px solid black',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          padding: '20px',
-          marginBottom: '20px',
+          border: "1px solid black",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          padding: "20px",
+          marginBottom: "20px",
         }}
       >
         <Box
           component="div"
           sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
           }}
         >
           <Typography variant="h6" gutterBottom>
@@ -203,13 +211,18 @@ function ViewEvent() {
             <strong>Location: </strong>
             {eventData.venue.location}
           </Typography>
-          <Button onClick={handleSaveEvent} variant="contained" color="secondary" style={{ backgroundColor: 'green', color: 'white' }}>
+          <Button
+            onClick={handleSaveEvent}
+            variant="contained"
+            color="secondary"
+            style={{ backgroundColor: "green", color: "white" }}
+          >
             Save Event
           </Button>
           {eventExists && (
             <Typography
               variant="body1"
-              style={{ marginTop: '10px', color: 'red' }}
+              style={{ marginTop: "10px", color: "red" }}
             >
               Event already exists
             </Typography>
@@ -228,12 +241,12 @@ function ViewEvent() {
       <Box
         component="form"
         sx={{
-          border: '1px solid black',
-          padding: '20px',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          marginBottom: '20px',
+          border: "1px solid black",
+          padding: "20px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          marginBottom: "20px",
         }}
         onSubmit={handleInvite}
       >
@@ -241,9 +254,11 @@ function ViewEvent() {
           Invite Your Friends
         </Typography>
 
+
         <Box component="div" sx={{ display: 'flex', alignItems: 'baseline', marginLeft: '50px', marginBottom: '10px' }}>
+
           <InputLabel htmlFor="notification-method">Share via</InputLabel>
-          <FormControl sx={{ marginLeft: '10px' }}>
+          <FormControl sx={{ marginLeft: "10px" }}>
             <Select
               id="notification-method"
               name="notification-method"
@@ -258,50 +273,70 @@ function ViewEvent() {
         </Box>
 
         <Box component="div" sx={{ display: 'flex', alignItems: 'baseline', marginLeft: '10px', marginBottom: '10px' }}>
+
           <InputLabel htmlFor="contact-info">
-            {notificationMethod === 'email' ? 'Email Address' : 'Phone Number'}
+            {notificationMethod === "email" ? "Email Address" : "Phone Number"}
           </InputLabel>
           <TextField
             id="contact-info"
             name="contact-info"
             value={contactInfo}
             onChange={handleContactChange}
+
             placeholder={notificationMethod === 'email' ? 'example@example.com' : '123-456-7890'}
             sx={{ marginLeft: '10px', minWidth: '200px' }}
+
           />
         </Box>
 
-        <Box component="div" sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
-          <Button type="submit" variant="contained" color="secondary" style={{ backgroundColor: 'green', color: 'white' }}>
+        <Box
+          component="div"
+          sx={{ display: "flex", justifyContent: "center", marginTop: "10px" }}
+        >
+          <Button
+            type="submit"
+            variant="contained"
+            color="secondary"
+            style={{ backgroundColor: "green", color: "white" }}
+          >
             Send
           </Button>
-
         </Box>
         {messageSent && (
-          <Typography
-            variant="body1"
-            style={{ marginTop: '10px' }}
-          >
+          <Typography variant="body1" style={{ marginTop: "10px" }}>
             Invite Shared
           </Typography>
         )}
       </Box>
 
+
       <Box component="div" sx={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
         <Box component="div" sx={{ border: '1px solid black', padding: '20px', marginRight: '10px', width: '100%' }}>
+
           <Typography variant="h6" gutterBottom>
             Ticketmaster Redirect
           </Typography>
-          <Button onClick={handleTicketmasterRedirect} variant="contained" color="secondary" style={{ backgroundColor: 'green', color: 'white' }}>
+          <Button
+            onClick={handleTicketmasterRedirect}
+            variant="contained"
+            color="secondary"
+            style={{ backgroundColor: "green", color: "white" }}
+          >
             Buy Tickets
           </Button>
         </Box>
 
         <Box component="div" sx={{ border: '1px solid black', padding: '20px', width: '100%' }}>
+
           <Typography variant="h6" gutterBottom>
             Map Redirect
           </Typography>
-          <Button onClick={handleMapRedirect} variant="contained" color="secondary" style={{ backgroundColor: 'green', color: 'white' }}>
+          <Button
+            onClick={handleMapRedirect}
+            variant="contained"
+            color="secondary"
+            style={{ backgroundColor: "green", color: "white" }}
+          >
             Map
           </Button>
         </Box>
