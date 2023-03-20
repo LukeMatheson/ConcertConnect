@@ -78,9 +78,10 @@ function ViewEvent() {
     return data.link;
   };
 
-  let getBandsLink = async (artist: string) => {
+  let getBandsLink = async (artist: string) => {    
     let res = await fetch(`/bands/eventTickets?artist=${artist}`);
     let data = await res.json();
+
     return data.link;
   };
 

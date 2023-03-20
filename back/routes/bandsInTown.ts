@@ -114,12 +114,12 @@ bandsInTownRouter.get('/savedEvents', async (req, res) => {
 });
 
 bandsInTownRouter.get('/eventTickets', async (req, res) => {
-    try {
+    try {        
         let artistName = req.query.artist;
         let url = `https://rest.bandsintown.com/artists/${artistName}/events?app_id=${apiKey}`;
-        let response = await fetch(url);
-        let data = await response.json();
-
+        let response = await axios.get(url);
+        let data = response.data;
+        
         let eventUrl = data[0].artist.url;
 
         let parsedUrl = new URL(eventUrl);
@@ -128,6 +128,7 @@ bandsInTownRouter.get('/eventTickets', async (req, res) => {
 
         res.json({ link: cleanUrl });
     } catch (error) {
+        console.log(error);
         res.status(500).json({ message: "Server Error" });
     }
 });
