@@ -96,7 +96,7 @@ let EventSearch: React.FC = () => {
                     <Button
                         variant="contained"
                         type="submit"
-                        sx={{ backgroundColor: "green" }}
+                        style={{ backgroundColor: 'green', color: 'white' }}
                     >
                         Search
                     </Button>
@@ -150,7 +150,7 @@ let EventSearch: React.FC = () => {
                             <Button
                                 onClick={() => handleViewEvent(index)}
                                 variant="contained"
-                                sx={{ backgroundColor: "green" }}
+                                style={{ backgroundColor: 'green', color: 'white' }}
                             >
                                 View Event
                             </Button>

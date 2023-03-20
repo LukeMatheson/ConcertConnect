@@ -100,6 +100,8 @@ bandsInTownRouter.get('/savedEvents', async (req, res) => {
     try {
         console.log("Saved");
         let { spotifyID } = req.query;
+        console.log("req query", req.query);
+        console.log("spotifyID", spotifyID);
         let query = 'SELECT * FROM SavedEvents WHERE spotifyID = ?';
         let params = [spotifyID];
         let result = await db.all(query, params);

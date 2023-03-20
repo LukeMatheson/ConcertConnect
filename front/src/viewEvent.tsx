@@ -197,7 +197,7 @@ function ViewEvent() {
           </Typography>
           <Typography variant="body1" gutterBottom>
             <strong>Lineup: </strong>
-            {eventData.lineup.slice(0, 5).join(", ")}
+            {eventData.lineup.split(", ").slice(0, 5).join(", ")}
           </Typography>
           <Typography variant="body1" gutterBottom>
             <strong>Location: </strong>
